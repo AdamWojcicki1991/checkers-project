@@ -20,7 +20,6 @@ HELP.md
 *.iml
 *.ipr
 **/out/
-TestApplication.java
 
 ### NetBeans ###
 /nbproject/private/
