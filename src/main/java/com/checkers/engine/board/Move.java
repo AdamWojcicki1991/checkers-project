@@ -1,17 +1,21 @@
 package com.checkers.engine.board;
 
 public class Move {
-    public int fromRow, fromCol;  // Position of piece to be moved.
-    public int toRow, toCol;      // Square it is to move to.
+    public int initialRow, initialColumn;
+    public int destinationRow, destinationColumn;
 
-    public Move(int r1, int c1, int r2, int c2) {
-        fromRow = r1;
-        fromCol = c1;
-        toRow = r2;
-        toCol = c2;
+    public Move(int initialRow, int initialColumn, int destinationRow, int destinationColumn) {
+        this.initialRow = initialRow;
+        this.initialColumn = initialColumn;
+        this.destinationRow = destinationRow;
+        this.destinationColumn = destinationColumn;
     }
 
     public boolean isJump() {
-        return (fromRow - toRow == 2 || fromRow - toRow == -2);
+        return (initialRow - destinationRow == 2 || initialRow - destinationRow == -2);
+    }
+
+    public boolean isNormal() {
+        return (initialRow - destinationRow == 1 || initialRow - destinationRow == -1);
     }
 }
