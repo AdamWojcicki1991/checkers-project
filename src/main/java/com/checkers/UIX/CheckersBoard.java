@@ -62,8 +62,8 @@ public class CheckersBoard extends Canvas {
     }
 
     private void actionClickSquare(int clickedRow, int clickedColumn) {
-        for (Move move : legalMoves) {
-            if (move.initialRow == clickedRow && move.initialColumn == clickedColumn) {
+        for (Move legalMove : legalMoves) {
+            if (legalMove.initialRow == clickedRow && legalMove.initialColumn == clickedColumn) {
                 selectedRow = clickedRow;
                 selectedCol = clickedColumn;
                 if (currentPlayer == WHITE) {
@@ -89,10 +89,12 @@ public class CheckersBoard extends Canvas {
     }
 
     private void actionMakeMove(Move move) {
-        boardProcessor.makeMove(move);
+        boardProcessor.executeMove(move);
+        boardProcessor.pawnPromotion(move, legalMoves);
         if (move.isJump()) {
-            legalMoves = boardProcessor.getLegalJumps(currentPlayer, move.destinationRow, move.destinationColumn);
-            if (legalMoves != null) {
+            computeLegalJump(move);
+            boardProcessor.pawnPromotion(move, legalMoves);
+            if (!legalMoves.isEmpty()) {
                 if (currentPlayer == WHITE) {
                     printTextInMessageField("WHITE:  You must continue jumping.");
                 } else {
@@ -107,7 +109,7 @@ public class CheckersBoard extends Canvas {
         if (currentPlayer == WHITE) {
             currentPlayer = BLACK;
             computeLegalMoves();
-            if (legalMoves == null) {
+            if (legalMoves.isEmpty()) {
                 gameOver("BLACK has no moves.  WHITE wins.");
             } else if (legalMoves.get(0).isJump()) {
                 printTextInMessageField("BLACK:  Make your move.  You must jump.");
@@ -117,7 +119,7 @@ public class CheckersBoard extends Canvas {
         } else {
             currentPlayer = WHITE;
             computeLegalMoves();
-            if (legalMoves == null) {
+            if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
             } else if (legalMoves.get(0).isJump()) {
                 printTextInMessageField("WHITE:  Make your move.  You must jump.");
@@ -126,7 +128,7 @@ public class CheckersBoard extends Canvas {
             }
         }
         selectedRow = -1;
-        if (legalMoves != null) {
+        if (!legalMoves.isEmpty()) {
             boolean sameStartSquare = true;
             for (int i = 1; i < legalMoves.size(); i++) {
                 if (legalMoves.get(i).initialRow != legalMoves.get(0).initialRow || legalMoves.get(i).initialColumn != legalMoves.get(0).initialColumn) {
@@ -189,7 +191,11 @@ public class CheckersBoard extends Canvas {
     }
 
     private void computeLegalMoves() {
-        legalMoves = boardProcessor.getLegalMoves(currentPlayer);
+        legalMoves = boardProcessor.calculateLegalMoves(currentPlayer);
+    }
+
+    private void computeLegalJump(Move move) {
+        legalMoves = boardProcessor.calculateNextJump(currentPlayer, move.destinationRow, move.destinationColumn);
     }
 
     private void drawHelpContur(GraphicsContext graphics, Color color, int fromCol, int fromRow) {
@@ -199,7 +205,7 @@ public class CheckersBoard extends Canvas {
     }
 
     private void drawFigures(GraphicsContext graphics, int row, int col) {
-        switch (boardProcessor.getFigureFromBoard(row, col)) {
+        switch (boardProcessor.getFigure(row, col)) {
             case WHITE_PAWN:
                 graphics.drawImage(WP, 14 + col * BOARD_FIELD_SIZE, 14 + row * BOARD_FIELD_SIZE, 50, 50);
                 break;
