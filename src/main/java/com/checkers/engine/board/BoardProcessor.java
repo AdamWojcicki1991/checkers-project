@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.checkers.engine.board.FigureType.*;
+import static com.checkers.engine.board.Move.MajorMove;
+import static com.checkers.engine.board.Move.QueenAttackMove;
 import static com.checkers.engine.playres.PlayerType.BLACK;
 import static com.checkers.engine.playres.PlayerType.WHITE;
 import static com.checkers.engine.utils.Constants.COLUMN_COUNT;
@@ -41,17 +43,20 @@ public class BoardProcessor {
     public void executeMove(Move move) {
         board[move.destinationRow][move.destinationColumn] = board[move.initialRow][move.initialColumn];
         board[move.initialRow][move.initialColumn] = EMPTY;
-        if (move.initialRow - move.destinationRow == 2 || move.initialRow - move.destinationRow == -2) {
+
+        if (move.isNormalJump()) {
             int jumpedRow = (move.initialRow + move.destinationRow) / 2;
             int jumpedCol = (move.initialColumn + move.destinationColumn) / 2;
             board[jumpedRow][jumpedCol] = EMPTY;
+        } else if (move.isQueenAttackMove()) {
+            board[move.getEnemyDestinationRow()][move.getEnemyDestinationColumn()] = EMPTY;
         }
     }
 
     public void pawnPromotion(Move move, List<Move> calculatedJumps) {
-        if (move.isJump() && calculatedJumps.isEmpty()) {
+        if (move.isNormalJump() && calculatedJumps.isEmpty()) {
             executePromotion(move);
-        } else if (move.isNormal()) {
+        } else if (move.isPawnMove()) {
             executePromotion(move);
         }
     }
@@ -70,23 +75,57 @@ public class BoardProcessor {
         for (int row = 0; row < ROW_COUNT; row++) {
             for (int col = 0; col < COLUMN_COUNT; col++) {
                 if (board[row][col] == playerPawn) {
-                    if (canPawnJump(playerPawn, row + 1, col + 1, row + 2, col + 2))
-                        legalMoves.add(new Move(row, col, row + 2, col + 2));
-                    if (canPawnJump(playerPawn, row + 1, col - 1, row + 2, col - 2))
-                        legalMoves.add(new Move(row, col, row + 2, col - 2));
-                    if (canPawnJump(playerPawn, row - 1, col + 1, row - 2, col + 2))
-                        legalMoves.add(new Move(row, col, row - 2, col + 2));
-                    if (canPawnJump(playerPawn, row - 1, col - 1, row - 2, col - 2))
-                        legalMoves.add(new Move(row, col, row - 2, col - 2));
+                    if (canJump(playerPawn, row + 1, col + 1, row + 2, col + 2))
+                        legalMoves.add(new MajorMove(row, col, row + 2, col + 2));
+                    if (canJump(playerPawn, row + 1, col - 1, row + 2, col - 2))
+                        legalMoves.add(new MajorMove(row, col, row + 2, col - 2));
+                    if (canJump(playerPawn, row - 1, col + 1, row - 2, col + 2))
+                        legalMoves.add(new MajorMove(row, col, row - 2, col + 2));
+                    if (canJump(playerPawn, row - 1, col - 1, row - 2, col - 2))
+                        legalMoves.add(new MajorMove(row, col, row - 2, col - 2));
                 } else if (board[row][col] == playerQueen) {
-                    int incrementRow = row + 1, incrementCol = col + 1, decrementRow = row - 1, decrementCol = col - 1;
-                    while (canQueenJump(playerQueen, incrementRow, incrementCol, incrementRow + 1, incrementCol + 1)) {
-                        legalMoves.add(new Move(incrementRow, incrementCol, incrementRow + 1, incrementCol + 1));
+                    int incrementRow = row + 1, incrementCol = col + 1, decrementRow = row - 1, decrementCol = col - 1, enemyDestinationRow = -1, enemyDestinationCol = -1;
+                    while (!isInvalidDestination(incrementRow, incrementCol)) {
+                        if (hasAllianceFigure(player, incrementRow, incrementCol)) break;
+                        if (canJump(playerQueen, incrementRow, incrementCol, incrementRow + 1, incrementCol + 1)) {
+                            enemyDestinationRow = incrementRow;
+                            enemyDestinationCol = incrementCol;
+                            legalMoves.add(new QueenAttackMove(row, col,
+                                    incrementRow + 1, incrementCol + 1,
+                                    enemyDestinationRow, enemyDestinationCol));
+                        }
+                        if (hasEnemyFigure(player, incrementRow, incrementCol)) {
+                            while (canMoveBehindFigure(incrementRow + 1, incrementCol + 1)) {
+                                legalMoves.add(new QueenAttackMove(row, col,
+                                        incrementRow + 1, incrementCol + 1,
+                                        enemyDestinationRow, enemyDestinationCol));
+                                incrementRow++;
+                                incrementCol++;
+                            }
+                            break;
+                        }
                         incrementRow++;
                         incrementCol++;
                     }
-                    while (canQueenJump(playerQueen, decrementRow, decrementCol, decrementRow - 1, decrementCol - 1)) {
-                        legalMoves.add(new Move(decrementRow, decrementCol, decrementRow - 1, decrementCol - 1));
+                    while (!isInvalidDestination(decrementRow, decrementCol)) {
+                        if (hasAllianceFigure(player, decrementRow, decrementCol)) break;
+                        if (canJump(playerQueen, decrementRow, decrementCol, decrementRow - 1, decrementCol - 1)) {
+                            enemyDestinationRow = decrementRow;
+                            enemyDestinationCol = decrementCol;
+                            legalMoves.add(new QueenAttackMove(row, col,
+                                    decrementRow - 1, decrementCol - 1,
+                                    enemyDestinationRow, enemyDestinationCol));
+                        }
+                        if (hasEnemyFigure(player, decrementRow, decrementCol)) {
+                            while (canMoveBehindFigure(decrementRow - 1, decrementCol - 1)) {
+                                legalMoves.add(new QueenAttackMove(row, col,
+                                        decrementRow - 1, decrementCol - 1,
+                                        enemyDestinationRow, enemyDestinationCol));
+                                decrementRow--;
+                                decrementCol--;
+                            }
+                            break;
+                        }
                         decrementRow--;
                         decrementCol--;
                     }
@@ -94,13 +133,47 @@ public class BoardProcessor {
                     incrementCol = col + 1;
                     decrementRow = row - 1;
                     decrementCol = col - 1;
-                    while (canQueenJump(playerQueen, decrementRow, incrementCol, decrementRow - 1, incrementCol + 1)) {
-                        legalMoves.add(new Move(decrementRow, incrementCol, decrementRow - 1, incrementCol + 1));
+                    while (!isInvalidDestination(decrementRow, incrementCol)) {
+                        if (hasAllianceFigure(player, decrementRow, incrementCol)) break;
+                        if (canJump(playerQueen, decrementRow, incrementCol, decrementRow - 1, incrementCol + 1)) {
+                            enemyDestinationRow = decrementRow;
+                            enemyDestinationCol = incrementCol;
+                            legalMoves.add(new QueenAttackMove(row, col,
+                                    decrementRow - 1, incrementCol + 1,
+                                    enemyDestinationRow, enemyDestinationCol));
+                        }
+                        if (hasEnemyFigure(player, decrementRow, incrementCol)) {
+                            while (canMoveBehindFigure(decrementRow - 1, incrementCol + 1)) {
+                                legalMoves.add(new QueenAttackMove(row, col,
+                                        decrementRow - 1, incrementCol + 1,
+                                        enemyDestinationRow, enemyDestinationCol));
+                                decrementRow--;
+                                incrementCol++;
+                            }
+                            break;
+                        }
                         decrementRow--;
                         incrementCol++;
                     }
-                    while (canQueenJump(playerQueen, incrementRow, decrementCol, incrementRow + 1, decrementCol - 1)) {
-                        legalMoves.add(new Move(incrementRow, decrementCol, incrementRow + 1, decrementCol - 1));
+                    while (!isInvalidDestination(incrementRow, decrementCol)) {
+                        if (hasAllianceFigure(player, incrementRow, decrementCol)) break;
+                        if (canJump(playerQueen, incrementRow, decrementCol, incrementRow + 1, decrementCol - 1)) {
+                            enemyDestinationRow = incrementRow;
+                            enemyDestinationCol = decrementCol;
+                            legalMoves.add(new QueenAttackMove(row, col,
+                                    incrementRow + 1, decrementCol - 1,
+                                    enemyDestinationRow, enemyDestinationCol));
+                        }
+                        if (hasEnemyFigure(player, incrementRow, decrementCol)) {
+                            while (canMoveBehindFigure(incrementRow + 1, decrementCol - 1)) {
+                                legalMoves.add(new QueenAttackMove(row, col,
+                                        incrementRow + 1, decrementCol - 1,
+                                        enemyDestinationRow, enemyDestinationCol));
+                                incrementRow++;
+                                decrementCol--;
+                            }
+                            break;
+                        }
                         incrementRow++;
                         decrementCol--;
                     }
@@ -111,23 +184,23 @@ public class BoardProcessor {
             for (int row = 0; row < ROW_COUNT; row++) {
                 for (int col = 0; col < COLUMN_COUNT; col++) {
                     if (board[row][col] == playerPawn) {
-                        if (canPawnMove(playerPawn, row, col, row + 1, col + 1))
-                            legalMoves.add(new Move(row, col, row + 1, col + 1));
-                        if (canPawnMove(playerPawn, row, col, row + 1, col - 1))
-                            legalMoves.add(new Move(row, col, row + 1, col - 1));
-                        if (canPawnMove(playerPawn, row, col, row - 1, col + 1))
-                            legalMoves.add(new Move(row, col, row - 1, col + 1));
-                        if (canPawnMove(playerPawn, row, col, row - 1, col - 1))
-                            legalMoves.add(new Move(row, col, row - 1, col - 1));
+                        if (canMove(playerPawn, row, col, row + 1, col + 1))
+                            legalMoves.add(new MajorMove(row, col, row + 1, col + 1));
+                        if (canMove(playerPawn, row, col, row + 1, col - 1))
+                            legalMoves.add(new MajorMove(row, col, row + 1, col - 1));
+                        if (canMove(playerPawn, row, col, row - 1, col + 1))
+                            legalMoves.add(new MajorMove(row, col, row - 1, col + 1));
+                        if (canMove(playerPawn, row, col, row - 1, col - 1))
+                            legalMoves.add(new MajorMove(row, col, row - 1, col - 1));
                     } else if (board[row][col] == playerQueen) {
                         int incrementRow = row + 1, incrementCol = col + 1, decrementRow = row - 1, decrementCol = col - 1;
-                        while (canQueenMove(playerQueen, row, col, incrementRow, incrementCol)) {
-                            legalMoves.add(new Move(row, col, incrementRow, incrementCol));
+                        while (canMove(playerQueen, row, col, incrementRow, incrementCol)) {
+                            legalMoves.add(new MajorMove(row, col, incrementRow, incrementCol));
                             incrementRow++;
                             incrementCol++;
                         }
-                        while (canQueenMove(playerQueen, row, col, decrementRow, decrementCol)) {
-                            legalMoves.add(new Move(row, col, decrementRow, decrementCol));
+                        while (canMove(playerQueen, row, col, decrementRow, decrementCol)) {
+                            legalMoves.add(new MajorMove(row, col, decrementRow, decrementCol));
                             decrementRow--;
                             decrementCol--;
                         }
@@ -135,13 +208,13 @@ public class BoardProcessor {
                         incrementCol = col + 1;
                         decrementRow = row - 1;
                         decrementCol = col - 1;
-                        while (canQueenMove(playerQueen, row, col, decrementRow, incrementCol)) {
-                            legalMoves.add(new Move(row, col, decrementRow, incrementCol));
+                        while (canMove(playerQueen, row, col, decrementRow, incrementCol)) {
+                            legalMoves.add(new MajorMove(row, col, decrementRow, incrementCol));
                             decrementRow--;
                             incrementCol++;
                         }
-                        while (canQueenMove(playerQueen, row, col, incrementRow, decrementCol)) {
-                            legalMoves.add(new Move(row, col, incrementRow, decrementCol));
+                        while (canMove(playerQueen, row, col, incrementRow, decrementCol)) {
+                            legalMoves.add(new MajorMove(row, col, incrementRow, decrementCol));
                             incrementRow++;
                             decrementCol--;
                         }
@@ -153,8 +226,8 @@ public class BoardProcessor {
     }
 
     public List<Move> calculateNextJump(PlayerType player, int destinationRow, int destinationColumn) {
-        List<Move> nextJump = new ArrayList<>();
-        if (player != WHITE && player != BLACK) return nextJump;
+        List<Move> nextJumps = new ArrayList<>();
+        if (player != WHITE && player != BLACK) return nextJumps;
         FigureType playerPawn, playerQueen;
         if (player == WHITE) {
             playerPawn = WHITE_PAWN;
@@ -164,18 +237,111 @@ public class BoardProcessor {
             playerQueen = BLACK_QUEEN;
         }
         if (board[destinationRow][destinationColumn] == playerPawn) {
-            if (canPawnJump(playerPawn, destinationRow + 1, destinationColumn + 1, destinationRow + 2, destinationColumn + 2))
-                nextJump.add(new Move(destinationRow, destinationColumn, destinationRow + 2, destinationColumn + 2));
-            if (canPawnJump(playerPawn, destinationRow + 1, destinationColumn - 1, destinationRow + 2, destinationColumn - 2))
-                nextJump.add(new Move(destinationRow, destinationColumn, destinationRow + 2, destinationColumn - 2));
-            if (canPawnJump(playerPawn, destinationRow - 1, destinationColumn + 1, destinationRow - 2, destinationColumn + 2))
-                nextJump.add(new Move(destinationRow, destinationColumn, destinationRow - 2, destinationColumn + 2));
-            if (canPawnJump(playerPawn, destinationRow - 1, destinationColumn - 1, destinationRow - 2, destinationColumn - 2))
-                nextJump.add(new Move(destinationRow, destinationColumn, destinationRow - 2, destinationColumn - 2));
+            if (canJump(playerPawn, destinationRow + 1, destinationColumn + 1, destinationRow + 2, destinationColumn + 2))
+                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow + 2, destinationColumn + 2));
+            if (canJump(playerPawn, destinationRow + 1, destinationColumn - 1, destinationRow + 2, destinationColumn - 2))
+                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow + 2, destinationColumn - 2));
+            if (canJump(playerPawn, destinationRow - 1, destinationColumn + 1, destinationRow - 2, destinationColumn + 2))
+                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow - 2, destinationColumn + 2));
+            if (canJump(playerPawn, destinationRow - 1, destinationColumn - 1, destinationRow - 2, destinationColumn - 2))
+                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow - 2, destinationColumn - 2));
         } else if (board[destinationRow][destinationColumn] == playerQueen) {
-
+            int incrementRow = destinationRow + 1, incrementCol = destinationColumn + 1, decrementRow = destinationRow - 1,
+                    decrementCol = destinationColumn - 1, enemyDestinationRow = -1, enemyDestinationCol = -1;
+            while (!isInvalidDestination(incrementRow, incrementCol)) {
+                if (hasAllianceFigure(player, incrementRow, incrementCol)) break;
+                if (canJump(playerQueen, incrementRow, incrementCol, incrementRow + 1, incrementCol + 1)) {
+                    enemyDestinationRow = incrementRow;
+                    enemyDestinationCol = incrementCol;
+                    nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                            incrementRow + 1, incrementCol + 1,
+                            enemyDestinationRow, enemyDestinationCol));
+                }
+                if (hasEnemyFigure(player, incrementRow, incrementCol)) {
+                    while (canMoveBehindFigure(incrementRow + 1, incrementCol + 1)) {
+                        nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                                incrementRow + 1, incrementCol + 1,
+                                enemyDestinationRow, enemyDestinationCol));
+                        incrementRow++;
+                        incrementCol++;
+                    }
+                    break;
+                }
+                incrementRow++;
+                incrementCol++;
+            }
+            while (!isInvalidDestination(decrementRow, decrementCol)) {
+                if (hasAllianceFigure(player, decrementRow, decrementCol)) break;
+                if (canJump(playerQueen, decrementRow, decrementCol, decrementRow - 1, decrementCol - 1)) {
+                    enemyDestinationRow = decrementRow;
+                    enemyDestinationCol = decrementCol;
+                    nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                            decrementRow - 1, decrementCol - 1,
+                            enemyDestinationRow, enemyDestinationCol));
+                }
+                if (hasEnemyFigure(player, decrementRow, decrementCol)) {
+                    while (canMoveBehindFigure(decrementRow - 1, decrementCol - 1)) {
+                        nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                                decrementRow - 1, decrementCol - 1,
+                                enemyDestinationRow, enemyDestinationCol));
+                        decrementRow--;
+                        decrementCol--;
+                    }
+                    break;
+                }
+                decrementRow--;
+                decrementCol--;
+            }
+            incrementRow = destinationRow + 1;
+            incrementCol = destinationColumn + 1;
+            decrementRow = destinationRow - 1;
+            decrementCol = destinationColumn - 1;
+            while (!isInvalidDestination(decrementRow, incrementCol)) {
+                if (hasAllianceFigure(player, decrementRow, incrementCol)) break;
+                if (canJump(playerQueen, decrementRow, incrementCol, decrementRow - 1, incrementCol + 1)) {
+                    enemyDestinationRow = decrementRow;
+                    enemyDestinationCol = incrementCol;
+                    nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                            decrementRow - 1, incrementCol + 1,
+                            enemyDestinationRow, enemyDestinationCol));
+                }
+                if (hasEnemyFigure(player, decrementRow, incrementCol)) {
+                    while (canMoveBehindFigure(decrementRow - 1, incrementCol + 1)) {
+                        nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                                decrementRow - 1, incrementCol + 1,
+                                enemyDestinationRow, enemyDestinationCol));
+                        decrementRow--;
+                        incrementCol++;
+                    }
+                    break;
+                }
+                decrementRow--;
+                incrementCol++;
+            }
+            while (!isInvalidDestination(incrementRow, decrementCol)) {
+                if (hasAllianceFigure(player, incrementRow, decrementCol)) break;
+                if (canJump(playerQueen, incrementRow, decrementCol, incrementRow + 1, decrementCol - 1)) {
+                    enemyDestinationRow = incrementRow;
+                    enemyDestinationCol = decrementCol;
+                    nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                            incrementRow + 1, decrementCol - 1,
+                            enemyDestinationRow, enemyDestinationCol));
+                }
+                if (hasEnemyFigure(player, incrementRow, decrementCol)) {
+                    while (canMoveBehindFigure(incrementRow + 1, decrementCol - 1)) {
+                        nextJumps.add(new QueenAttackMove(destinationRow, destinationColumn,
+                                incrementRow + 1, decrementCol - 1,
+                                enemyDestinationRow, enemyDestinationCol));
+                        incrementRow++;
+                        decrementCol--;
+                    }
+                    break;
+                }
+                incrementRow++;
+                decrementCol--;
+            }
         }
-        return nextJump;
+        return nextJumps;
     }
 
     private void executePromotion(Move move) {
@@ -185,51 +351,48 @@ public class BoardProcessor {
             board[move.destinationRow][move.destinationColumn] = BLACK_QUEEN;
     }
 
-    private boolean canPawnJump(FigureType playerFigure, int jumpedRow, int jumpedColumn, int destinationRow, int destinationColumn) {
-        if (isValidDestination(destinationRow, destinationColumn)) return false;
+    private boolean canJump(FigureType playerFigure, int jumpedRow, int jumpedColumn, int destinationRow, int destinationColumn) {
+        if (isInvalidDestination(destinationRow, destinationColumn)) return false;
         if (board[destinationRow][destinationColumn] != EMPTY) return false;
-        if (playerFigure == WHITE_PAWN) {
+        if (playerFigure == WHITE_PAWN || playerFigure == WHITE_QUEEN) {
             return board[jumpedRow][jumpedColumn] == BLACK_PAWN || board[jumpedRow][jumpedColumn] == BLACK_QUEEN;
         } else {
             return board[jumpedRow][jumpedColumn] == WHITE_PAWN || board[jumpedRow][jumpedColumn] == WHITE_QUEEN;
         }
     }
 
-    private boolean canPawnMove(FigureType playerFigure, int initialRow, int initialColumn, int destinationRow, int destinationColumn) {
-        if (isValidDestination(destinationRow, destinationColumn)) return false;
+    private boolean canMove(FigureType playerFigure, int initialRow, int initialColumn, int destinationRow, int destinationColumn) {
+        if (isInvalidDestination(destinationRow, destinationColumn)) return false;
         if (board[destinationRow][destinationColumn] != EMPTY) return false;
         if (playerFigure == WHITE_PAWN) {
             return (board[initialRow][initialColumn] == WHITE_PAWN) && (destinationRow < initialRow);
-        } else {
+        } else if (playerFigure == BLACK_PAWN) {
             return (board[initialRow][initialColumn] == BLACK_PAWN) && (destinationRow > initialRow);
-        }
-    }
-
-    private boolean canQueenJump(FigureType playerFigure, int jumpedRow, int jumpedColumn, int destinationRow, int destinationColumn) {
-        if (isValidDestination(destinationRow, destinationColumn)) return false;
-        if (board[destinationRow][destinationColumn] != EMPTY) return false;
-        if (board[jumpedRow][jumpedColumn].getColor().equals(playerFigure.getColor())) {
-            return false;
-        } else {
-            if (playerFigure == WHITE_QUEEN) {
-                return board[jumpedRow][jumpedColumn] == BLACK_PAWN || board[jumpedRow][jumpedColumn] == BLACK_QUEEN;
-            } else {
-                return board[jumpedRow][jumpedColumn] == WHITE_PAWN || board[jumpedRow][jumpedColumn] == WHITE_QUEEN;
-            }
-        }
-    }
-
-    private boolean canQueenMove(FigureType playerFigure, int initialRow, int initialColumn, int destinationRow, int destinationColumn) {
-        if (isValidDestination(destinationRow, destinationColumn)) return false;
-        if (board[destinationRow][destinationColumn] != EMPTY) return false;
-        if (playerFigure == WHITE_QUEEN) {
+        } else if (playerFigure == WHITE_QUEEN) {
             return (board[initialRow][initialColumn] == WHITE_QUEEN);
         } else {
             return (board[initialRow][initialColumn] == BLACK_QUEEN);
         }
     }
 
-    private boolean isValidDestination(int destinationRow, int destinationColumn) {
+    private boolean canMoveBehindFigure(int destinationRow, int destinationColumn) {
+        if (isInvalidDestination(destinationRow, destinationColumn)) return false;
+        return board[destinationRow][destinationColumn] == EMPTY;
+    }
+
+    private boolean hasEnemyFigure(PlayerType player, int row, int col) {
+        if (player == WHITE && (getFigure(row, col) == BLACK_PAWN || getFigure(row, col) == BLACK_QUEEN)) {
+            return true;
+        } else return player == BLACK && (getFigure(row, col) == WHITE_PAWN || getFigure(row, col) == WHITE_QUEEN);
+    }
+
+    private boolean hasAllianceFigure(PlayerType player, int row, int col) {
+        if (player == WHITE && (getFigure(row, col) == WHITE_PAWN || getFigure(row, col) == WHITE_PAWN)) {
+            return true;
+        } else return player == BLACK && (getFigure(row, col) == BLACK_PAWN || getFigure(row, col) == BLACK_QUEEN);
+    }
+
+    private boolean isInvalidDestination(int destinationRow, int destinationColumn) {
         return destinationRow < 0 || destinationRow >= ROW_COUNT || destinationColumn < 0 || destinationColumn >= COLUMN_COUNT;
     }
 }

@@ -91,7 +91,7 @@ public class CheckersBoard extends Canvas {
     private void actionMakeMove(Move move) {
         boardProcessor.executeMove(move);
         boardProcessor.pawnPromotion(move, legalMoves);
-        if (move.isJump()) {
+        if (move.isNormalJump() || move.isQueenAttackMove()) {
             computeLegalJump(move);
             boardProcessor.pawnPromotion(move, legalMoves);
             if (!legalMoves.isEmpty()) {
@@ -111,7 +111,7 @@ public class CheckersBoard extends Canvas {
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("BLACK has no moves.  WHITE wins.");
-            } else if (legalMoves.get(0).isJump()) {
+            } else if (legalMoves.get(0).isNormalJump() || legalMoves.get(0).isQueenAttackMove()) {
                 printTextInMessageField("BLACK:  Make your move.  You must jump.");
             } else {
                 printTextInMessageField("BLACK:  Make your move.");
@@ -121,7 +121,7 @@ public class CheckersBoard extends Canvas {
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
-            } else if (legalMoves.get(0).isJump()) {
+            } else if (legalMoves.get(0).isNormalJump() || legalMoves.get(0).isQueenAttackMove()) {
                 printTextInMessageField("WHITE:  Make your move.  You must jump.");
             } else {
                 printTextInMessageField("WHITE:  Make your move.");
@@ -160,7 +160,7 @@ public class CheckersBoard extends Canvas {
         }
         if (gameInProgress) {
             for (Move legalMove : legalMoves) {
-                drawHelpContur(graphics, Color.VIOLET, legalMove.initialColumn, legalMove.initialRow);
+                drawHelpContur(graphics, Color.CYAN, legalMove.initialColumn, legalMove.initialRow);
             }
             if (selectedRow >= 0) {
                 drawHelpContur(graphics, Color.YELLOW, selectedCol, selectedRow);

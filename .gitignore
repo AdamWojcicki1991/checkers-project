@@ -1,5 +1,5 @@
 HELP.md
-../checkers-project1/.gradle
+.gradle
 **/build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**
