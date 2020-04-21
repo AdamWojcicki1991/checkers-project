@@ -5,7 +5,6 @@ import com.checkers.engine.board.Move;
 import com.checkers.engine.playres.PlayerType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -13,46 +12,48 @@ import javafx.scene.text.Font;
 
 import java.util.List;
 
-import static com.checkers.UIX.Images.*;
+import static com.checkers.UIX.UIContent.*;
 import static com.checkers.engine.playres.PlayerType.BLACK;
 import static com.checkers.engine.playres.PlayerType.WHITE;
 import static com.checkers.engine.utils.Constants.*;
 
 public class CheckersBoard extends Canvas {
     private final BoardProcessor boardProcessor;
-    private final Button newGameButton, surrenderButton;
+    private final GameHistoryPanel gameHistoryPanel;
+    private final TakenFigurePanel takenFigurePanel;
     private final Label message;
     private PlayerType currentPlayer;
     private List<Move> legalMoves;
     private boolean gameInProgress;
     private int selectedRow, selectedCol;
 
-    public CheckersBoard(final Button newGameButton, final Button surrenderButton, final Label message) {
+    public CheckersBoard(Label message, TakenFigurePanel takenFigurePanel, GameHistoryPanel gameHistoryPanel) {
         super(708, 708);
-        this.newGameButton = newGameButton;
-        this.surrenderButton = surrenderButton;
         this.message = message;
+        this.takenFigurePanel = takenFigurePanel;
+        this.gameHistoryPanel = gameHistoryPanel;
         this.boardProcessor = new BoardProcessor();
-        createGame();
     }
 
     public void createGame() {
         initGame();
         computeLegalMoves();
         drawBoard();
+        takenFigurePanel.drawTakenFigurePanel();
+        gameHistoryPanel.drawGameHistoryPanel();
     }
 
-    public void surrenderGame() {
+    public void giveUp() {
         if (currentPlayer == WHITE) {
-            gameOver("WHITE surrender.  BLACK wins.");
+            gameOver("WHITE surrender.  BLACK wins!");
         } else {
-            gameOver("BLACK surrender.  WHITE wins.");
+            gameOver("BLACK surrender.  WHITE wins!");
         }
     }
 
     public void mousePressed(MouseEvent mouseEvent) {
         if (!gameInProgress) {
-            printTextInMessageField("Click \"New Game\" to start a new game.");
+            printTextInMessageField("Click on Top Menu Bar \"File -> New Game\" to start a new game or \"Help -> Game Manual\"");
         } else {
             int clickedColumn = (int) ((mouseEvent.getX() - 4) / BOARD_FIELD_SIZE);
             int clickedRow = (int) ((mouseEvent.getY() - 4) / BOARD_FIELD_SIZE);
@@ -67,9 +68,9 @@ public class CheckersBoard extends Canvas {
                 selectedRow = clickedRow;
                 selectedCol = clickedColumn;
                 if (currentPlayer == WHITE) {
-                    printTextInMessageField("WHITE:  Make your move.");
+                    printTextInMessageField("WHITE:  Make your move to green field.");
                 } else {
-                    printTextInMessageField("BLACK:  Make your move.");
+                    printTextInMessageField("BLACK:  Make your move to green field.");
                 }
                 drawBoard();
                 return;
@@ -80,18 +81,19 @@ public class CheckersBoard extends Canvas {
             return;
         }
         for (Move legalMove : legalMoves) {
-            if (legalMove.initialRow == selectedRow && legalMove.initialColumn == selectedCol && legalMove.destinationRow == clickedRow && legalMove.destinationColumn == clickedColumn) {
+            if (legalMove.initialRow == selectedRow && legalMove.initialColumn == selectedCol &&
+                    legalMove.destinationRow == clickedRow && legalMove.destinationColumn == clickedColumn) {
                 actionMakeMove(legalMove);
                 return;
             }
         }
-        printTextInMessageField("Click the square you want to move to.");
+        printTextInMessageField("Click green square of figure you already want to move or click on next valid figure.");
     }
 
     private void actionMakeMove(Move move) {
         boardProcessor.executeMove(move);
         boardProcessor.pawnPromotion(move, legalMoves);
-        if (move.isNormalJump() || move.isQueenAttackMove()) {
+        if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
             computeLegalJump(move);
             boardProcessor.pawnPromotion(move, legalMoves);
             if (!legalMoves.isEmpty()) {
@@ -110,21 +112,21 @@ public class CheckersBoard extends Canvas {
             currentPlayer = BLACK;
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
-                gameOver("BLACK has no moves.  WHITE wins.");
-            } else if (legalMoves.get(0).isNormalJump() || legalMoves.get(0).isQueenAttackMove()) {
+                gameOver("BLACK has no moves.  WHITE wins!");
+            } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
                 printTextInMessageField("BLACK:  Make your move.  You must jump.");
             } else {
-                printTextInMessageField("BLACK:  Make your move.");
+                printTextInMessageField("BLACK:  Click on valid figure and make your move.");
             }
         } else {
             currentPlayer = WHITE;
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
-            } else if (legalMoves.get(0).isNormalJump() || legalMoves.get(0).isQueenAttackMove()) {
+            } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
                 printTextInMessageField("WHITE:  Make your move.  You must jump.");
             } else {
-                printTextInMessageField("WHITE:  Make your move.");
+                printTextInMessageField("WHITE:  Click on valid figure and make your move.");
             }
         }
         selectedRow = -1;
@@ -177,16 +179,12 @@ public class CheckersBoard extends Canvas {
         boardProcessor.initFigures();
         currentPlayer = WHITE;
         selectedRow = -1;
-        printTextInMessageField("WHITE:  Make your move.");
+        printTextInMessageField("WHITE: First move is yours!  Click on valid figure and make your move.");
         gameInProgress = true;
-        newGameButton.setDisable(true);
-        surrenderButton.setDisable(false);
     }
 
     private void gameOver(String text) {
         printTextInMessageField(text);
-        newGameButton.setDisable(false);
-        surrenderButton.setDisable(true);
         gameInProgress = false;
     }
 
@@ -234,7 +232,6 @@ public class CheckersBoard extends Canvas {
     private GraphicsContext initGraphicsContext() {
         GraphicsContext graphics = getGraphicsContext2D();
         graphics.setFont(Font.font(14));
-        graphics.setFill(Color.CORNSILK);
         graphics.setStroke(Color.GREY);
         graphics.setLineWidth(8);
         graphics.strokeRect(0, 0, 708, 708);

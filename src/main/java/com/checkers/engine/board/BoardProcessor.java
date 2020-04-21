@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.checkers.engine.board.FigureType.*;
-import static com.checkers.engine.board.Move.MajorMove;
-import static com.checkers.engine.board.Move.QueenAttackMove;
+import static com.checkers.engine.board.Move.*;
 import static com.checkers.engine.playres.PlayerType.BLACK;
 import static com.checkers.engine.playres.PlayerType.WHITE;
 import static com.checkers.engine.utils.Constants.COLUMN_COUNT;
@@ -44,7 +43,7 @@ public class BoardProcessor {
         board[move.destinationRow][move.destinationColumn] = board[move.initialRow][move.initialColumn];
         board[move.initialRow][move.initialColumn] = EMPTY;
 
-        if (move.isNormalJump()) {
+        if (move.isPawnAttackMove()) {
             int jumpedRow = (move.initialRow + move.destinationRow) / 2;
             int jumpedCol = (move.initialColumn + move.destinationColumn) / 2;
             board[jumpedRow][jumpedCol] = EMPTY;
@@ -54,7 +53,7 @@ public class BoardProcessor {
     }
 
     public void pawnPromotion(Move move, List<Move> calculatedJumps) {
-        if (move.isNormalJump() && calculatedJumps.isEmpty()) {
+        if (move.isPawnAttackMove() && calculatedJumps.isEmpty()) {
             executePromotion(move);
         } else if (move.isPawnMove()) {
             executePromotion(move);
@@ -76,13 +75,13 @@ public class BoardProcessor {
             for (int col = 0; col < COLUMN_COUNT; col++) {
                 if (board[row][col] == playerPawn) {
                     if (canJump(playerPawn, row + 1, col + 1, row + 2, col + 2))
-                        legalMoves.add(new MajorMove(row, col, row + 2, col + 2));
+                        legalMoves.add(new PawnAttackMove(row, col, row + 2, col + 2, row + 1, col + 1));
                     if (canJump(playerPawn, row + 1, col - 1, row + 2, col - 2))
-                        legalMoves.add(new MajorMove(row, col, row + 2, col - 2));
+                        legalMoves.add(new PawnAttackMove(row, col, row + 2, col - 2, row + 1, col - 1));
                     if (canJump(playerPawn, row - 1, col + 1, row - 2, col + 2))
-                        legalMoves.add(new MajorMove(row, col, row - 2, col + 2));
+                        legalMoves.add(new PawnAttackMove(row, col, row - 2, col + 2, row - 1, col + 1));
                     if (canJump(playerPawn, row - 1, col - 1, row - 2, col - 2))
-                        legalMoves.add(new MajorMove(row, col, row - 2, col - 2));
+                        legalMoves.add(new PawnAttackMove(row, col, row - 2, col - 2, row - 1, col - 1));
                 } else if (board[row][col] == playerQueen) {
                     int incrementRow = row + 1, incrementCol = col + 1, decrementRow = row - 1, decrementCol = col - 1, enemyDestinationRow = -1, enemyDestinationCol = -1;
                     while (!isInvalidDestination(incrementRow, incrementCol)) {
@@ -238,13 +237,21 @@ public class BoardProcessor {
         }
         if (board[destinationRow][destinationColumn] == playerPawn) {
             if (canJump(playerPawn, destinationRow + 1, destinationColumn + 1, destinationRow + 2, destinationColumn + 2))
-                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow + 2, destinationColumn + 2));
+                nextJumps.add(new PawnAttackMove(destinationRow, destinationColumn,
+                        destinationRow + 2, destinationColumn + 2,
+                        destinationRow + 1, destinationColumn + 1));
             if (canJump(playerPawn, destinationRow + 1, destinationColumn - 1, destinationRow + 2, destinationColumn - 2))
-                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow + 2, destinationColumn - 2));
+                nextJumps.add(new PawnAttackMove(destinationRow, destinationColumn,
+                        destinationRow + 2, destinationColumn - 2,
+                        destinationRow + 1, destinationColumn - 1));
             if (canJump(playerPawn, destinationRow - 1, destinationColumn + 1, destinationRow - 2, destinationColumn + 2))
-                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow - 2, destinationColumn + 2));
+                nextJumps.add(new PawnAttackMove(destinationRow, destinationColumn,
+                        destinationRow - 2, destinationColumn + 2,
+                        destinationRow - 1, destinationColumn + 1));
             if (canJump(playerPawn, destinationRow - 1, destinationColumn - 1, destinationRow - 2, destinationColumn - 2))
-                nextJumps.add(new MajorMove(destinationRow, destinationColumn, destinationRow - 2, destinationColumn - 2));
+                nextJumps.add(new PawnAttackMove(destinationRow, destinationColumn,
+                        destinationRow - 2, destinationColumn - 2,
+                        destinationRow - 1, destinationColumn - 1));
         } else if (board[destinationRow][destinationColumn] == playerQueen) {
             int incrementRow = destinationRow + 1, incrementCol = destinationColumn + 1, decrementRow = destinationRow - 1,
                     decrementCol = destinationColumn - 1, enemyDestinationRow = -1, enemyDestinationCol = -1;

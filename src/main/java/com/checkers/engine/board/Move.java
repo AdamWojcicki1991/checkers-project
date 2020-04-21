@@ -31,10 +31,6 @@ public abstract class Move {
         return Objects.hash(initialRow, initialColumn, destinationRow, destinationColumn);
     }
 
-    public boolean isNormalJump() {
-        return (initialRow - destinationRow == 2 || initialRow - destinationRow == -2);
-    }
-
     public boolean isPawnMove() {
         return (initialRow - destinationRow == 1 || initialRow - destinationRow == -1);
     }
@@ -44,6 +40,8 @@ public abstract class Move {
     abstract public int getEnemyDestinationColumn();
 
     abstract public boolean isQueenAttackMove();
+
+    abstract public boolean isPawnAttackMove();
 
     abstract public boolean isMajorMove();
 
@@ -74,6 +72,48 @@ public abstract class Move {
         }
 
         @Override
+        public boolean isPawnAttackMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isMajorMove() {
+            return false;
+        }
+    }
+
+    public static class PawnAttackMove extends Move {
+
+        private final int enemyDestinationRow;
+        private final int enemyDestinationColumn;
+
+        public PawnAttackMove(final int initialRow, final int initialColumn, final int destinationRow, final int destinationColumn, final int enemyDestinationRow, final int enemyDestinationColumn) {
+            super(initialRow, initialColumn, destinationRow, destinationColumn);
+            this.enemyDestinationRow = enemyDestinationRow;
+            this.enemyDestinationColumn = enemyDestinationColumn;
+        }
+
+        @Override
+        public int getEnemyDestinationRow() {
+            return this.enemyDestinationRow;
+        }
+
+        @Override
+        public int getEnemyDestinationColumn() {
+            return this.enemyDestinationColumn;
+        }
+
+        @Override
+        public boolean isQueenAttackMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnAttackMove() {
+            return true;
+        }
+
+        @Override
         public boolean isMajorMove() {
             return false;
         }
@@ -97,6 +137,11 @@ public abstract class Move {
 
         @Override
         public boolean isQueenAttackMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnAttackMove() {
             return false;
         }
 
