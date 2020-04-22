@@ -43,7 +43,9 @@ public abstract class Move {
 
     abstract public boolean isPawnAttackMove();
 
-    abstract public boolean isMajorMove();
+    abstract public boolean isQueenMajorMove();
+
+    abstract public boolean isPawnMajorMove();
 
     public static class QueenAttackMove extends Move {
 
@@ -77,7 +79,12 @@ public abstract class Move {
         }
 
         @Override
-        public boolean isMajorMove() {
+        public boolean isQueenMajorMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnMajorMove() {
             return false;
         }
     }
@@ -114,14 +121,19 @@ public abstract class Move {
         }
 
         @Override
-        public boolean isMajorMove() {
+        public boolean isQueenMajorMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnMajorMove() {
             return false;
         }
     }
 
-    public static class MajorMove extends Move {
+    public static class QueenMajorMove extends Move {
 
-        public MajorMove(final int initialRow, final int initialColumn, final int destinationRow, final int destinationColumn) {
+        public QueenMajorMove(final int initialRow, final int initialColumn, final int destinationRow, final int destinationColumn) {
             super(initialRow, initialColumn, destinationRow, destinationColumn);
         }
 
@@ -146,7 +158,49 @@ public abstract class Move {
         }
 
         @Override
-        public boolean isMajorMove() {
+        public boolean isQueenMajorMove() {
+            return true;
+        }
+
+        @Override
+        public boolean isPawnMajorMove() {
+            return false;
+        }
+    }
+
+    public static class PawnMajorMove extends Move {
+
+        public PawnMajorMove(final int initialRow, final int initialColumn, final int destinationRow, final int destinationColumn) {
+            super(initialRow, initialColumn, destinationRow, destinationColumn);
+        }
+
+        @Override
+        public int getEnemyDestinationRow() {
+            return -1;
+        }
+
+        @Override
+        public int getEnemyDestinationColumn() {
+            return -1;
+        }
+
+        @Override
+        public boolean isQueenAttackMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnAttackMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isQueenMajorMove() {
+            return false;
+        }
+
+        @Override
+        public boolean isPawnMajorMove() {
             return true;
         }
     }

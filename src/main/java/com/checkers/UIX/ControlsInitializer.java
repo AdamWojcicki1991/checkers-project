@@ -55,7 +55,7 @@ public class ControlsInitializer {
         textField.setTextFill(Color.CORNSILK);
         textField.setText(content);
 
-        Button exitButton = new Button("Exit " + title);
+        Button exitButton = new Button("Close");
         exitButton.setOnAction(mouseEvent -> popUpGameManual.close());
 
         BorderPane layout = new BorderPane();

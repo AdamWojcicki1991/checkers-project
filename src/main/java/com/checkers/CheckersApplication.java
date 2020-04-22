@@ -44,8 +44,7 @@ public class CheckersApplication extends Application {
         board.setOnMousePressed(mouseEvent -> board.mousePressed(mouseEvent));
     }
 
-    private BorderPane initializeBorderPane() {
-        BorderPane root = new BorderPane();
+    private void initializeBorderPane() {
         BorderPane.setMargin(messageWindow, new Insets(0, 0, 25, 0));
         BorderPane.setMargin(takenFigurePanel, new Insets(0, 0, 0, 50));
         BorderPane.setMargin(gameHistoryPanel, new Insets(0, 50, 0, 0));
@@ -54,11 +53,11 @@ public class CheckersApplication extends Application {
         BorderPane.setAlignment(board, Pos.CENTER);
         BorderPane.setAlignment(takenFigurePanel, Pos.CENTER_LEFT);
         BorderPane.setAlignment(gameHistoryPanel, Pos.CENTER_RIGHT);
-        return root;
     }
 
     private BorderPane initializeRoot(Background background) {
-        BorderPane root = initializeBorderPane();
+        initializeBorderPane();
+        BorderPane root = new BorderPane();
         root.setBackground(background);
         root.setCenter(board);
         root.setTop(menuBar);
