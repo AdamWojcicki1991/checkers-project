@@ -1,5 +1,7 @@
-package com.checkers.UIX;
+package com.checkers.UIX.panels;
 
+import com.checkers.UIX.CheckersBoard;
+import com.checkers.UIX.UIXContent;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,7 +15,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import static com.checkers.UIX.UIContent.BACKGROUND_MENU_BAR;
+import static com.checkers.UIX.UIXContent.BACKGROUND_MENU_BAR;
 
 public class ControlsInitializer {
 
@@ -115,9 +117,9 @@ public class ControlsInitializer {
         Menu help = new Menu("Help");
         SeparatorMenuItem separator = new SeparatorMenuItem();
         MenuItem gameManual = new MenuItem("Game Manual");
-        gameManual.setOnAction(mouseEvent -> createPopUpWindow("GAME MANUAL", UIContent.printManual()));
+        gameManual.setOnAction(mouseEvent -> createPopUpWindow("GAME MANUAL", UIXContent.printManual()));
         MenuItem about = new MenuItem("About");
-        about.setOnAction(mouseEvent -> createPopUpWindow("ABOUT", UIContent.printAbout()));
+        about.setOnAction(mouseEvent -> createPopUpWindow("ABOUT", UIXContent.printAbout()));
         help.getItems().addAll(gameManual, separator, about);
 
         MenuBar menuBar = new MenuBar();

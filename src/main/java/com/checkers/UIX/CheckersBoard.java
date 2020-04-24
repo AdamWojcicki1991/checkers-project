@@ -1,7 +1,9 @@
 package com.checkers.UIX;
 
+import com.checkers.UIX.panels.GameHistoryPanel;
+import com.checkers.UIX.panels.TakenFigurePanel;
 import com.checkers.engine.board.Board;
-import com.checkers.engine.board.Move;
+import com.checkers.engine.move.Move;
 import com.checkers.engine.playres.PlayerType;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.checkers.UIX.UIContent.*;
+import static com.checkers.UIX.UIXContent.*;
 import static com.checkers.engine.playres.PlayerType.BLACK;
 import static com.checkers.engine.playres.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.*;
@@ -72,9 +74,17 @@ public class CheckersBoard extends Canvas {
                 selectedRow = clickedRow;
                 selectedColumn = clickedColumn;
                 if (currentPlayer == WHITE) {
-                    printTextInMessageField("WHITE:  Make your move to green field.");
+                    if (legalMove.isPawnAttackMove() || legalMove.isQueenAttackMove()) {
+                        printTextInMessageField("WHITE:  Make your jump to green field.");
+                    } else {
+                        printTextInMessageField("WHITE:  Make your move to green field.");
+                    }
                 } else {
-                    printTextInMessageField("BLACK:  Make your move to green field.");
+                    if (legalMove.isPawnAttackMove() || legalMove.isQueenAttackMove()) {
+                        printTextInMessageField("BLACK:  Make your jump to green field.");
+                    } else {
+                        printTextInMessageField("BLACK:  Make your move to green field.");
+                    }
                 }
                 drawBoard();
                 return;
@@ -126,7 +136,6 @@ public class CheckersBoard extends Canvas {
             if (legalMoves.isEmpty()) {
                 gameOver("BLACK has no moves.  WHITE wins!");
             } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
-                attackChainMoves.add(legalMoves.get(0));
                 printTextInMessageField("BLACK:  Make your move.  You must jump.");
             } else {
                 printTextInMessageField("BLACK:  Click on valid figure and make your move.");
@@ -137,7 +146,6 @@ public class CheckersBoard extends Canvas {
             if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
             } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
-                attackChainMoves.add(legalMoves.get(0));
                 printTextInMessageField("WHITE:  Make your move.  You must jump.");
             } else {
                 printTextInMessageField("WHITE:  Click on valid figure and make your move.");

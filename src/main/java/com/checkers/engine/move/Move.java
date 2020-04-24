@@ -1,4 +1,4 @@
-package com.checkers.engine.board;
+package com.checkers.engine.move;
 
 import java.util.Objects;
 

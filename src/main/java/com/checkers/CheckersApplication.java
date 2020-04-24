@@ -1,8 +1,8 @@
 package com.checkers;
 
 import com.checkers.UIX.CheckersBoard;
-import com.checkers.UIX.GameHistoryPanel;
-import com.checkers.UIX.TakenFigurePanel;
+import com.checkers.UIX.panels.GameHistoryPanel;
+import com.checkers.UIX.panels.TakenFigurePanel;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,8 +13,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-import static com.checkers.UIX.ControlsInitializer.*;
-import static com.checkers.UIX.UIContent.BACKGROUND_MAIN_VIEW;
+import static com.checkers.UIX.UIXContent.BACKGROUND_MAIN_VIEW;
+import static com.checkers.UIX.panels.ControlsInitializer.*;
 
 public class CheckersApplication extends Application {
     private MenuBar menuBar;

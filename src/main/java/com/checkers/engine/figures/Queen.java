@@ -1,16 +1,16 @@
 package com.checkers.engine.figures;
 
 import com.checkers.engine.board.BoardField;
-import com.checkers.engine.board.Move;
+import com.checkers.engine.move.Move;
 import com.checkers.engine.playres.PlayerType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.checkers.engine.board.Move.QueenAttackMove;
-import static com.checkers.engine.board.Move.QueenMajorMove;
 import static com.checkers.engine.figures.FigureType.*;
+import static com.checkers.engine.move.Move.QueenAttackMove;
+import static com.checkers.engine.move.Move.QueenMajorMove;
 import static com.checkers.engine.utils.EngineUtils.*;
 
 public class Queen extends Figure {
@@ -20,7 +20,7 @@ public class Queen extends Figure {
     }
 
     @Override
-    public List<Move> calculateLegalMove(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType) {
+    public List<Move> calculateLegalMoves(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType) {
         final List<Move> legalMoves = new ArrayList<>();
         calculateAttackMove(playerType, playerFigure, board, 1, 1, legalMoves);
         calculateAttackMove(playerType, playerFigure, board, -1, -1, legalMoves);
@@ -61,21 +61,25 @@ public class Queen extends Figure {
     private void calculateAttack(PlayerType playerType, FigureType playerFigure, BoardField[][] board, int moveRow, int moveColumn, int initialRow, int initialColumn, List<Move> nextJumpMoves) {
         int calculateRow = initialRow + moveRow, calculateColumn = initialColumn + moveColumn, enemyDestinationRow = -1, enemyDestinationCol = -1;
         while (!isDestinationInvalid(calculateRow, calculateColumn)) {
+            if (board[calculateRow][calculateColumn].isJumped()) break;
             if (hasAllianceFigure(playerType, board, calculateRow, calculateColumn)) break;
-            if (isJumpValid(playerFigure, board, calculateRow, calculateColumn, calculateRow + moveRow, calculateColumn + moveColumn)) {
-                enemyDestinationRow = calculateRow;
-                enemyDestinationCol = calculateColumn;
-                nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
-                        calculateRow + moveRow, calculateColumn + moveColumn,
-                        enemyDestinationRow, enemyDestinationCol));
-            }
             if (hasEnemyFigure(playerType, board, calculateRow, calculateColumn)) {
-                while (canMoveBehindFigure(board, calculateRow + moveRow, calculateColumn + moveColumn)) {
-                    nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
-                            calculateRow + moveRow, calculateColumn + moveColumn,
-                            enemyDestinationRow, enemyDestinationCol));
+                if (isJumpValid(playerFigure, board, calculateRow, calculateColumn, calculateRow + moveRow, calculateColumn + moveColumn)) {
+                    enemyDestinationRow = calculateRow;
+                    enemyDestinationCol = calculateColumn;
                     calculateRow = calculateRow + moveRow;
                     calculateColumn = calculateColumn + moveColumn;
+                    nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
+                            calculateRow, calculateColumn,
+                            enemyDestinationRow, enemyDestinationCol));
+                    while (canMoveBehindFigure(board, calculateRow + moveRow, calculateColumn + moveColumn)) {
+                        nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
+                                calculateRow + moveRow, calculateColumn + moveColumn,
+                                enemyDestinationRow, enemyDestinationCol));
+                        calculateRow = calculateRow + moveRow;
+                        calculateColumn = calculateColumn + moveColumn;
+                    }
+                    break;
                 }
                 break;
             }
@@ -85,16 +89,17 @@ public class Queen extends Figure {
     }
 
     private void calculateMajorMove(BoardField[][] board, FigureType playerFigure, int moveRow, int moveColumn, List<Move> legalMoves) {
-        int calculateRow = row + moveRow, calculateCol = column + moveColumn;
-        while (isMoveValid(playerFigure, board, row, column, calculateRow, calculateCol)) {
-            legalMoves.add(new QueenMajorMove(row, column, calculateRow, calculateCol));
+        int calculateRow = row + moveRow, calculateColumn = column + moveColumn;
+        while (isMoveValid(playerFigure, board, row, column, calculateRow, calculateColumn)) {
+            legalMoves.add(new QueenMajorMove(row, column, calculateRow, calculateColumn));
             calculateRow = calculateRow + moveRow;
-            calculateCol = calculateCol + moveColumn;
+            calculateColumn = calculateColumn + moveColumn;
         }
     }
 
     private boolean canMoveBehindFigure(BoardField[][] board, int destinationRow, int destinationColumn) {
         if (isDestinationInvalid(destinationRow, destinationColumn)) return false;
+        if (board[destinationRow][destinationColumn].isJumped()) return false;
         return !board[destinationRow][destinationColumn].isBoardFieldOccupied();
     }
 

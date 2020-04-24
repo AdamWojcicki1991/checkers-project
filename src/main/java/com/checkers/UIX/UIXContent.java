@@ -2,7 +2,7 @@ package com.checkers.UIX;
 
 import javafx.scene.image.Image;
 
-public interface UIContent {
+public interface UIXContent {
     Image BACKGROUND_MAIN_VIEW = new Image("com/checkers/UIX/image/background.jpg");
     Image BACKGROUND_MENU_BAR = new Image("com/checkers/UIX/image/backgroundMenuBar.jpg");
     Image BP = new Image("com/checkers/UIX/figures/BP.png");

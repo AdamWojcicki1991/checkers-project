@@ -1,16 +1,16 @@
-package com.checkers.UIX;
+package com.checkers.UIX.panels;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class GameHistoryPanel extends Canvas {
+public class TakenFigurePanel extends Canvas {
 
-    public GameHistoryPanel() {
+    public TakenFigurePanel() {
         super(300, 708);
     }
 
-    public void drawGameHistoryPanel() {
+    public void drawTakenFigurePanel() {
         GraphicsContext graphics = getGraphicsContext2D();
         graphics.setFill(Color.TRANSPARENT);
         graphics.fillRect(0, 0, 300, 708);

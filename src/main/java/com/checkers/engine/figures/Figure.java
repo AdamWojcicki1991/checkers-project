@@ -1,7 +1,7 @@
 package com.checkers.engine.figures;
 
 import com.checkers.engine.board.BoardField;
-import com.checkers.engine.board.Move;
+import com.checkers.engine.move.Move;
 import com.checkers.engine.playres.PlayerType;
 
 import java.util.List;
@@ -40,7 +40,7 @@ public abstract class Figure {
         return figureType;
     }
 
-    public abstract List<Move> calculateLegalMove(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType);
+    public abstract List<Move> calculateLegalMoves(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType);
 
     public abstract List<Move> calculateNextJump(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType, final int destinationRow, final int destinationColumn);
 }

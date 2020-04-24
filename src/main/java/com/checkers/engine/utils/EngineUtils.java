@@ -30,6 +30,7 @@ public interface EngineUtils {
     static boolean isJumpValid(FigureType playerFigure, BoardField[][] board, int jumpedRow, int jumpedColumn, int destinationRow, int destinationColumn) {
         if (isDestinationInvalid(destinationRow, destinationColumn)) return false;
         if (board[jumpedRow][jumpedColumn].isJumped()) return false;
+        if (board[destinationRow][destinationColumn].isJumped()) return false;
         if (board[destinationRow][destinationColumn].isBoardFieldOccupied()) return false;
         if (!board[jumpedRow][jumpedColumn].isBoardFieldOccupied()) return false;
         if (playerFigure == WHITE_PAWN || playerFigure == WHITE_QUEEN) {

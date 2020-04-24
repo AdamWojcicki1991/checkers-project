@@ -3,6 +3,7 @@ package com.checkers.engine.board;
 import com.checkers.engine.figures.FigureType;
 import com.checkers.engine.figures.Pawn;
 import com.checkers.engine.figures.Queen;
+import com.checkers.engine.move.Move;
 import com.checkers.engine.playres.PlayerType;
 
 import java.util.ArrayList;
@@ -104,10 +105,6 @@ public class Board {
         return board[row][column];
     }
 
-    public BoardField[][] getBoard() {
-        return board;
-    }
-
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder();
@@ -150,7 +147,7 @@ public class Board {
 
     private void calculateMoves(PlayerType player, List<Move> legalMovesOnBoard, List<Move> legalAttacksOnBoard, FigureType playerPawn, FigureType playerQueen, int row, int col) {
         if (board[row][col].getFigure().getFigureType() == playerPawn) {
-            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMove(board, playerPawn, player);
+            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerPawn, player);
             if (legalMoves.isEmpty()) return;
             if (legalMoves.get(0).isPawnMajorMove()) {
                 legalMovesOnBoard.addAll(legalMoves);
@@ -158,7 +155,7 @@ public class Board {
                 legalAttacksOnBoard.addAll(legalMoves);
             }
         } else if (board[row][col].getFigure().getFigureType() == playerQueen) {
-            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMove(board, playerQueen, player);
+            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerQueen, player);
             if (legalMoves.get(0).isQueenMajorMove()) {
                 legalMovesOnBoard.addAll(legalMoves);
             } else {
