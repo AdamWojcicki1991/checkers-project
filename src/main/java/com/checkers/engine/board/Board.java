@@ -1,27 +1,32 @@
 package com.checkers.engine.board;
 
-import com.checkers.engine.figures.FigureType;
+import com.checkers.engine.figures.Figure;
 import com.checkers.engine.figures.Pawn;
 import com.checkers.engine.figures.Queen;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.playres.PlayerType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.checkers.engine.board.BoardField.createBoardField;
-import static com.checkers.engine.figures.FigureType.*;
-import static com.checkers.engine.playres.PlayerType.BLACK;
-import static com.checkers.engine.playres.PlayerType.WHITE;
-import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
-import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;
+import static com.checkers.engine.figures.Figure.FigureType;
+import static com.checkers.engine.figures.Figure.FigureType.*;
+import static com.checkers.engine.playres.Player.PlayerType;
+import static com.checkers.engine.playres.Player.PlayerType.BLACK;
+import static com.checkers.engine.playres.Player.PlayerType.WHITE;
+import static com.checkers.engine.utils.EngineUtils.*;
 
 public class Board {
     private BoardField[][] board;
 
     public Board() {
         this.board = initBoard();
+    }
+
+    public Board(Board copyBoard) {
+        this.board = copyBoardArray(copyBoard.getBoardArray());
     }
 
     public BoardField[][] initBoard() {
@@ -73,16 +78,17 @@ public class Board {
         }
     }
 
-    public List<Move> calculateMovesOnBoard(PlayerType player) {
+    public List<Move> calculateMovesOnBoard(PlayerType playerType) {
         final List<Move> legalMovesOnBoard = new ArrayList<>();
         final List<Move> legalAttacksOnBoard = new ArrayList<>();
-        if (player != WHITE && player != BLACK) return legalMovesOnBoard;
-        FigureType playerPawn = setPlayerPawn(player);
-        FigureType playerQueen = setPlayerQueen(player);
+        if (playerType != WHITE && playerType != BLACK) return legalMovesOnBoard;
+        FigureType playerPawn = setPlayerPawn(playerType);
+        FigureType playerQueen = setPlayerQueen(playerType);
         for (int row = 0; row < ROW_COUNT; row++) {
             for (int col = 0; col < COLUMN_COUNT; col++) {
                 if (board[row][col].isBoardFieldOccupied()) {
-                    calculateMoves(player, legalMovesOnBoard, legalAttacksOnBoard, playerPawn, playerQueen, row, col);
+                    calculateMoves(legalMovesOnBoard, legalAttacksOnBoard,
+                            playerPawn, playerQueen, playerType, row, col);
                 }
             }
         }
@@ -92,17 +98,36 @@ public class Board {
         return Collections.unmodifiableList(legalMovesOnBoard);
     }
 
-    public List<Move> calculateNextJumpOnBoard(PlayerType player, int destinationRow, int destinationColumn) {
+    public List<Move> calculateNextJumpOnBoard(PlayerType playerType, int destinationRow, int destinationColumn) {
         List<Move> nextJumpsOnBoard = new ArrayList<>();
-        if (player != WHITE && player != BLACK) return nextJumpsOnBoard;
-        FigureType playerPawn = setPlayerPawn(player);
-        FigureType playerQueen = setPlayerQueen(player);
-        calculateNextJump(player, destinationRow, destinationColumn, nextJumpsOnBoard, playerPawn, playerQueen);
+        if (playerType != WHITE && playerType != BLACK) return nextJumpsOnBoard;
+        FigureType playerPawn = setPlayerPawn(playerType);
+        FigureType playerQueen = setPlayerQueen(playerType);
+        calculateNextJump(destinationRow, destinationColumn, nextJumpsOnBoard, playerPawn, playerQueen, playerType);
         return nextJumpsOnBoard;
     }
 
     public BoardField getBoardField(int row, int column) {
         return board[row][column];
+    }
+
+    public BoardField[][] getBoardArray() {
+        return board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Board boardInstance = (Board) o;
+
+        return Arrays.deepEquals(board, boardInstance.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
     }
 
     @Override
@@ -121,7 +146,7 @@ public class Board {
     }
 
     private void moveFigure(Move move) {
-        FigureType movedFigure = board[move.initialRow][move.initialColumn].getFigure().getFigureType();
+        Figure.FigureType movedFigure = board[move.initialRow][move.initialColumn].getFigure().getFigureType();
         if (movedFigure == WHITE_PAWN || movedFigure == BLACK_PAWN) {
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
@@ -145,9 +170,9 @@ public class Board {
                             new Queen(BLACK_QUEEN, move.destinationRow, move.destinationColumn));
     }
 
-    private void calculateMoves(PlayerType player, List<Move> legalMovesOnBoard, List<Move> legalAttacksOnBoard, FigureType playerPawn, FigureType playerQueen, int row, int col) {
+    private void calculateMoves(List<Move> legalMovesOnBoard, List<Move> legalAttacksOnBoard, FigureType playerPawn, FigureType playerQueen, PlayerType playerType, int row, int col) {
         if (board[row][col].getFigure().getFigureType() == playerPawn) {
-            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerPawn, player);
+            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerPawn, playerType);
             if (legalMoves.isEmpty()) return;
             if (legalMoves.get(0).isPawnMajorMove()) {
                 legalMovesOnBoard.addAll(legalMoves);
@@ -155,7 +180,7 @@ public class Board {
                 legalAttacksOnBoard.addAll(legalMoves);
             }
         } else if (board[row][col].getFigure().getFigureType() == playerQueen) {
-            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerQueen, player);
+            List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerQueen, playerType);
             if (legalMoves.get(0).isQueenMajorMove()) {
                 legalMovesOnBoard.addAll(legalMoves);
             } else {
@@ -164,15 +189,15 @@ public class Board {
         }
     }
 
-    private void calculateNextJump(PlayerType player, int initialRow, int initialColumn, List<Move> nextJumpsOnBoard, FigureType playerPawn, FigureType playerQueen) {
+    private void calculateNextJump(int initialRow, int initialColumn, List<Move> nextJumpsOnBoard, FigureType playerPawn, FigureType playerQueen, PlayerType playerType) {
         if (board[initialRow][initialColumn].isBoardFieldOccupied()) {
             if (board[initialRow][initialColumn].getFigure().getFigureType() == playerPawn) {
                 List<Move> nextJumps = board[initialRow][initialColumn].getFigure().calculateNextJump(
-                        board, playerPawn, player, initialRow, initialColumn);
+                        board, playerPawn, playerType, initialRow, initialColumn);
                 nextJumpsOnBoard.addAll(nextJumps);
             } else if (board[initialRow][initialColumn].getFigure().getFigureType() == playerQueen) {
                 List<Move> nextJumps = board[initialRow][initialColumn].getFigure().calculateNextJump(
-                        board, playerQueen, player, initialRow, initialColumn);
+                        board, playerQueen, playerType, initialRow, initialColumn);
                 nextJumpsOnBoard.addAll(nextJumps);
             }
         }

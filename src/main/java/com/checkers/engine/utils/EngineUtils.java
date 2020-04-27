@@ -1,17 +1,27 @@
 package com.checkers.engine.utils;
 
 import com.checkers.engine.board.BoardField;
-import com.checkers.engine.figures.FigureType;
-import com.checkers.engine.playres.PlayerType;
+import com.checkers.engine.figures.Figure.FigureType;
+import com.checkers.engine.playres.Player.PlayerType;
 
-import static com.checkers.engine.figures.FigureType.*;
-import static com.checkers.engine.playres.PlayerType.BLACK;
-import static com.checkers.engine.playres.PlayerType.WHITE;
+import static com.checkers.engine.figures.Figure.FigureType.*;
+import static com.checkers.engine.playres.Player.PlayerType.BLACK;
+import static com.checkers.engine.playres.Player.PlayerType.WHITE;
 
 public interface EngineUtils {
     int BOARD_FIELD_SIZE = 70;
     int ROW_COUNT = 10;
     int COLUMN_COUNT = 10;
+
+    static BoardField[][] copyBoardArray(BoardField[][] source) {
+        BoardField[][] target = new BoardField[source.length][source.length];
+        for (int i = 0; i < source.length; i++) {
+            for (int j = 0; j < source.length; j++) {
+                target[i][j] = source[i][j].clone();
+            }
+        }
+        return target;
+    }
 
     static boolean isDestinationInvalid(int destinationRow, int destinationColumn) {
         return destinationRow < 0 || destinationRow >= ROW_COUNT || destinationColumn < 0 || destinationColumn >= COLUMN_COUNT;

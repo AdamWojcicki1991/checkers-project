@@ -4,7 +4,12 @@ import com.checkers.UIX.panels.GameHistoryPanel;
 import com.checkers.UIX.panels.TakenFigurePanel;
 import com.checkers.engine.board.Board;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.playres.PlayerType;
+import com.checkers.engine.playres.BlackPlayer;
+import com.checkers.engine.playres.Player;
+import com.checkers.engine.playres.WhitePlayer;
+import com.checkers.engine.strategy.ai.MiniMax;
+import com.checkers.engine.strategy.ai.MoveStrategy;
+import com.checkers.engine.strategy.ai.RandomMove;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
@@ -17,8 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.checkers.UIX.UIXContent.*;
-import static com.checkers.engine.playres.PlayerType.BLACK;
-import static com.checkers.engine.playres.PlayerType.WHITE;
+import static com.checkers.engine.playres.Player.PlayerType;
+import static com.checkers.engine.playres.Player.PlayerType.BLACK;
+import static com.checkers.engine.playres.Player.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.*;
 
 public class CheckersBoard extends Canvas {
@@ -26,9 +32,14 @@ public class CheckersBoard extends Canvas {
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenFigurePanel takenFigurePanel;
     private final Label message;
-    private PlayerType currentPlayer;
+    private final Set<Move> attackChainMoves;
+    private final Set<Board> boards;
+    private final MoveStrategy randomMove;
+    private final MoveStrategy strategy;
+    private Player currentPlayer;
+    private final WhitePlayer whitePlayer;
+    private final BlackPlayer blackPlayer;
     private List<Move> legalMoves;
-    private Set<Move> attackChainMoves;
     private boolean gameInProgress;
     private int selectedRow, selectedColumn;
 
@@ -37,8 +48,14 @@ public class CheckersBoard extends Canvas {
         this.message = message;
         this.takenFigurePanel = takenFigurePanel;
         this.gameHistoryPanel = gameHistoryPanel;
-        this.board = new Board();
         this.attackChainMoves = new HashSet<>();
+        this.boards = new HashSet<>();
+        this.board = new Board();
+        this.whitePlayer = new WhitePlayer(board);
+        this.blackPlayer = new BlackPlayer(board);
+        this.currentPlayer = whitePlayer;
+        this.randomMove = new RandomMove();
+        this.strategy = new MiniMax(4);
     }
 
     public void createGame() {
@@ -50,7 +67,7 @@ public class CheckersBoard extends Canvas {
     }
 
     public void giveUp() {
-        if (currentPlayer == WHITE) {
+        if (currentPlayer.getPlayerType() == WHITE) {
             gameOver("WHITE surrender.  BLACK wins!");
         } else {
             gameOver("BLACK surrender.  WHITE wins!");
@@ -68,12 +85,36 @@ public class CheckersBoard extends Canvas {
         }
     }
 
+    public Board getBoard() {
+        return board;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public WhitePlayer getWhitePlayer() {
+        return whitePlayer;
+    }
+
+    public BlackPlayer getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    @Override
+    public String toString() {
+        return "{ currentPlayer = " + currentPlayer +
+                ", whitePlayer=" + whitePlayer +
+                ", blackPlayer=" + blackPlayer +
+                '}';
+    }
+
     private void actionClickSquare(int clickedRow, int clickedColumn) {
         for (Move legalMove : legalMoves) {
             if (legalMove.initialRow == clickedRow && legalMove.initialColumn == clickedColumn) {
                 selectedRow = clickedRow;
                 selectedColumn = clickedColumn;
-                if (currentPlayer == WHITE) {
+                if (currentPlayer.getPlayerType() == WHITE) {
                     if (legalMove.isPawnAttackMove() || legalMove.isQueenAttackMove()) {
                         printTextInMessageField("WHITE:  Make your jump to green field.");
                     } else {
@@ -108,13 +149,15 @@ public class CheckersBoard extends Canvas {
         if (move.isPawnMajorMove() || move.isQueenMajorMove()) {
             board.executeMove(move);
             board.pawnPromotion(move, legalMoves);
+            boards.add(new Board(board));
         } else if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
             board.executeJump(move);
+            boards.add(new Board(board));
             computeLegalJump(move);
             attackChainMoves.add(move);
             board.pawnPromotion(move, legalMoves);
             if (!legalMoves.isEmpty()) {
-                if (currentPlayer == WHITE) {
+                if (currentPlayer.getPlayerType() == WHITE) {
                     printTextInMessageField("WHITE:  You must continue jumping.");
                 } else {
                     printTextInMessageField("BLACK:  You must continue jumping.");
@@ -130,8 +173,8 @@ public class CheckersBoard extends Canvas {
                 attackChainMoves.clear();
             }
         }
-        if (currentPlayer == WHITE) {
-            currentPlayer = BLACK;
+        if (currentPlayer.getPlayerType() == WHITE) {
+            changeCurrentPlayer(BLACK, board);
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("BLACK has no moves.  WHITE wins!");
@@ -141,7 +184,7 @@ public class CheckersBoard extends Canvas {
                 printTextInMessageField("BLACK:  Click on valid figure and make your move.");
             }
         } else {
-            currentPlayer = WHITE;
+            changeCurrentPlayer(WHITE, board);
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
@@ -168,6 +211,14 @@ public class CheckersBoard extends Canvas {
         drawBoard();
     }
 
+    private void changeCurrentPlayer(PlayerType playerType, Board board) {
+        if (playerType.isWhite()) {
+            currentPlayer = new WhitePlayer(board);
+        } else {
+            currentPlayer = new BlackPlayer(board);
+        }
+    }
+
     private void drawBoard() {
         int fieldNumber = 1;
         GraphicsContext graphics = initGraphicsContext();
@@ -184,18 +235,18 @@ public class CheckersBoard extends Canvas {
         }
         if (gameInProgress) {
             for (Move legalMove : legalMoves) {
-                drawHelpContur(graphics, Color.CYAN, legalMove.initialColumn, legalMove.initialRow);
+                drawHelpContour(graphics, Color.CYAN, legalMove.initialColumn, legalMove.initialRow);
             }
             if (selectedRow >= 0) {
-                drawHelpContur(graphics, Color.YELLOW, selectedColumn, selectedRow);
+                drawHelpContour(graphics, Color.YELLOW, selectedColumn, selectedRow);
                 for (Move legalMove : legalMoves) {
                     if (legalMove.initialColumn == selectedColumn && legalMove.initialRow == selectedRow) {
-                        drawHelpContur(graphics, Color.LIME, legalMove.destinationColumn, legalMove.destinationRow);
+                        drawHelpContour(graphics, Color.LIME, legalMove.destinationColumn, legalMove.destinationRow);
                     }
                 }
                 if (!attackChainMoves.isEmpty()) {
                     for (Move attackMove : attackChainMoves) {
-                        drawHelpContur(graphics, Color.RED, attackMove.getEnemyDestinationColumn(), attackMove.getEnemyDestinationRow());
+                        drawHelpContour(graphics, Color.RED, attackMove.getEnemyDestinationColumn(), attackMove.getEnemyDestinationRow());
                     }
                 }
             }
@@ -204,7 +255,7 @@ public class CheckersBoard extends Canvas {
 
     private void initGame() {
         board.initBoard();
-        currentPlayer = WHITE;
+        boards.add(new Board(board));
         selectedRow = -1;
         printTextInMessageField("WHITE: First move is yours!  Click on valid figure and make your move.");
         gameInProgress = true;
@@ -216,14 +267,14 @@ public class CheckersBoard extends Canvas {
     }
 
     private void computeLegalMoves() {
-        legalMoves = board.calculateMovesOnBoard(currentPlayer);
+        legalMoves = board.calculateMovesOnBoard(currentPlayer.getPlayerType());
     }
 
     private void computeLegalJump(Move move) {
-        legalMoves = board.calculateNextJumpOnBoard(currentPlayer, move.destinationRow, move.destinationColumn);
+        legalMoves = board.calculateNextJumpOnBoard(currentPlayer.getPlayerType(), move.destinationRow, move.destinationColumn);
     }
 
-    private void drawHelpContur(GraphicsContext graphics, Color color, int fromCol, int fromRow) {
+    private void drawHelpContour(GraphicsContext graphics, Color color, int fromCol, int fromRow) {
         graphics.setStroke(color);
         graphics.setLineWidth(3);
         graphics.strokeRect(4 + fromCol * BOARD_FIELD_SIZE, 4 + fromRow * BOARD_FIELD_SIZE, BOARD_FIELD_SIZE, BOARD_FIELD_SIZE);

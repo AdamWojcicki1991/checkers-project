@@ -31,6 +31,20 @@ public abstract class Move {
         return Objects.hash(initialRow, initialColumn, destinationRow, destinationColumn);
     }
 
+    public Move undo() {
+        if (isPawnMajorMove()) {
+            return new PawnMajorMove(destinationRow, destinationColumn, initialRow, initialColumn);
+        } else if (isQueenMajorMove()) {
+            return new QueenMajorMove(destinationRow, destinationColumn, initialRow, initialColumn);
+        } else if (isQueenMajorMove()) {
+            return new PawnAttackMove(destinationRow, destinationColumn, initialRow, initialColumn,
+                    getEnemyDestinationRow(), getEnemyDestinationColumn());
+        } else {
+            return new QueenAttackMove(destinationRow, destinationColumn, initialRow, initialColumn,
+                    getEnemyDestinationRow(), getEnemyDestinationColumn());
+        }
+    }
+
     public boolean isPawnMove() {
         return (initialRow - destinationRow == 1 || initialRow - destinationRow == -1);
     }
@@ -46,6 +60,23 @@ public abstract class Move {
     abstract public boolean isQueenMajorMove();
 
     abstract public boolean isPawnMajorMove();
+
+    public enum MoveStatus {
+        DONE {
+            @Override
+            public boolean isDone() {
+                return true;
+            }
+        },
+        ILLEGAL_MOVE {
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+        };
+
+        public abstract boolean isDone();
+    }
 
     public static class QueenAttackMove extends Move {
 
@@ -86,6 +117,18 @@ public abstract class Move {
         @Override
         public boolean isPawnMajorMove() {
             return false;
+        }
+
+        @Override
+        public String toString() {
+            return "QueenAttackMove{" +
+                    "initialRow=" + initialRow +
+                    ", initialColumn=" + initialColumn +
+                    ", destinationRow=" + destinationRow +
+                    ", destinationColumn=" + destinationColumn +
+                    ", enemyDestinationRow=" + enemyDestinationRow +
+                    ", enemyDestinationColumn=" + enemyDestinationColumn +
+                    '}';
         }
     }
 
@@ -129,6 +172,18 @@ public abstract class Move {
         public boolean isPawnMajorMove() {
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "PawnAttackMove{" +
+                    "initialRow=" + initialRow +
+                    ", initialColumn=" + initialColumn +
+                    ", destinationRow=" + destinationRow +
+                    ", destinationColumn=" + destinationColumn +
+                    ", enemyDestinationRow=" + enemyDestinationRow +
+                    ", enemyDestinationColumn=" + enemyDestinationColumn +
+                    '}';
+        }
     }
 
     public static class QueenMajorMove extends Move {
@@ -166,6 +221,16 @@ public abstract class Move {
         public boolean isPawnMajorMove() {
             return false;
         }
+
+        @Override
+        public String toString() {
+            return "QueenMajorMove{" +
+                    "initialRow=" + initialRow +
+                    ", initialColumn=" + initialColumn +
+                    ", destinationRow=" + destinationRow +
+                    ", destinationColumn=" + destinationColumn +
+                    '}';
+        }
     }
 
     public static class PawnMajorMove extends Move {
@@ -202,6 +267,16 @@ public abstract class Move {
         @Override
         public boolean isPawnMajorMove() {
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return "PawnMajorMove{" +
+                    "initialRow=" + initialRow +
+                    ", initialColumn=" + initialColumn +
+                    ", destinationRow=" + destinationRow +
+                    ", destinationColumn=" + destinationColumn +
+                    '}';
         }
     }
 }

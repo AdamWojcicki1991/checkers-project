@@ -2,7 +2,7 @@ package com.checkers.engine.figures;
 
 import com.checkers.engine.board.BoardField;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.playres.PlayerType;
+import com.checkers.engine.playres.Player.PlayerType;
 
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +38,43 @@ public abstract class Figure {
 
     public FigureType getFigureType() {
         return figureType;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public enum FigureType {
+
+        WHITE_PAWN("WP", 10),
+        WHITE_QUEEN("WQ", 900),
+        BLACK_PAWN("BP", 10),
+        BLACK_QUEEN("BQ", 900);
+
+        private final String figureName;
+        private final int figureValue;
+
+        FigureType(final String figureName, final int figureValue) {
+            this.figureName = figureName;
+            this.figureValue = figureValue;
+        }
+
+        public String getFigureName() {
+            return figureName;
+        }
+
+        public int getFigureValue() {
+            return figureValue;
+        }
+
+        @Override
+        public String toString() {
+            return figureName;
+        }
     }
 
     public abstract List<Move> calculateLegalMoves(final BoardField[][] board, final FigureType playerFigure, final PlayerType playerType);

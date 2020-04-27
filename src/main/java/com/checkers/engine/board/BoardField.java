@@ -4,7 +4,7 @@ import com.checkers.engine.figures.Figure;
 
 import java.util.Objects;
 
-public abstract class BoardField {
+public abstract class BoardField implements Cloneable {
 
     protected final int boardFieldNumber;
     protected final Figure figure;
@@ -30,6 +30,11 @@ public abstract class BoardField {
     @Override
     public int hashCode() {
         return Objects.hash(boardFieldNumber, figure);
+    }
+
+    @Override
+    public BoardField clone() {
+        return createBoardField(this.boardFieldNumber, this.figure);
     }
 
     public void setJumped(boolean jumped) {
