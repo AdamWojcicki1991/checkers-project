@@ -17,11 +17,12 @@ public class MoveTransition {
     }
 
     private Board calculateTransitionBoard() {
-        Board transitionBoard = fromBoard;
+        Board transitionBoard = new Board(fromBoard);
         if (transitionMove.isPawnMajorMove() || transitionMove.isQueenMajorMove()) {
-            fromBoard.executeMove(transitionMove);
+            transitionBoard.executeMove(transitionMove);
         } else if (transitionMove.isPawnAttackMove() || transitionMove.isQueenAttackMove()) {
-            fromBoard.executeJump(transitionMove);
+            transitionBoard.executeJump(transitionMove);
+            transitionBoard.killFigure(transitionMove);
         }
         return transitionBoard;
     }
@@ -40,5 +41,15 @@ public class MoveTransition {
 
     public MoveStatus getMoveStatus() {
         return moveStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "MoveTransition{" +
+                "fromBoard=" + fromBoard +
+                ", transitionMove=" + transitionMove +
+                ", moveStatus=" + moveStatus +
+                ", transitionBoard=" + transitionBoard +
+                '}';
     }
 }

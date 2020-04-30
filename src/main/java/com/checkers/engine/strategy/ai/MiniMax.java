@@ -9,9 +9,11 @@ public class MiniMax implements MoveStrategy {
 
     private final BoardEvaluator boardEvaluator;
     private final int depth;
+    private final long boardsEvaluated;
 
     public MiniMax(final int depth) {
         this.boardEvaluator = new StandardBoardEvaluator();
+        this.boardsEvaluated = 0;
         this.depth = depth;
     }
 
@@ -30,26 +32,33 @@ public class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-        System.out.println(board.getCurrentPlayer() + "THINKING with depth = " + depth);
-
+        System.out.println(board.getCurrentPlayer().getPlayerType() + " THINKING with depth = " + depth);
+        int moveCounter = 1;
         int numMoves = board.getCurrentPlayer().getLegalMoves().size();
 
         for (final Move move : board.getCurrentPlayer().getLegalMoves()) {
-
             final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
-            currentValue = board.getCurrentPlayer().getPlayerType().isWhite() ?
-                    min(board, moveTransition.getTransitionBoard(), depth - 1) :
-                    max(board, moveTransition.getTransitionBoard(), depth - 1);
+            if (moveTransition.getMoveStatus().isDone()) {
+                currentValue = board.getCurrentPlayer().getPlayerType().isWhite() ?
+                        min(board, moveTransition.getTransitionBoard(), depth - 1) :
+                        max(board, moveTransition.getTransitionBoard(), depth - 1);
 
-            if (board.getCurrentPlayer().getPlayerType().isWhite() && currentValue >= highestSeenValue) {
-                highestSeenValue = currentValue;
-                bestMove = move;
-            } else if (board.getCurrentPlayer().getPlayerType().isBlack() && currentValue <= lowestSeenValue) {
-                lowestSeenValue = currentValue;
-                bestMove = move;
+                if (board.getCurrentPlayer().getPlayerType().isWhite() && currentValue >= highestSeenValue) {
+                    highestSeenValue = currentValue;
+                    bestMove = move;
+                } else if (board.getCurrentPlayer().getPlayerType().isBlack() && currentValue <= lowestSeenValue) {
+                    lowestSeenValue = currentValue;
+                    bestMove = move;
+                }
+            } else {
+                System.out.println("\t" + toString() + " can't execute move (" + moveCounter + "/" + numMoves + ") " + move);
             }
+            moveCounter++;
         }
-        final long executionTime = System.currentTimeMillis() - startTime;
+        long executionTime = System.currentTimeMillis() - startTime;
+        System.out.printf("%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", board.getCurrentPlayer().getPlayerType(),
+                bestMove, boardsEvaluated, executionTime, (1000 * ((double) boardsEvaluated / executionTime)));
+
         return bestMove;
     }
 

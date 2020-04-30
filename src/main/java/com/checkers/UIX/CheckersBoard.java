@@ -101,14 +101,6 @@ public class CheckersBoard extends Canvas {
         return blackPlayer;
     }
 
-    @Override
-    public String toString() {
-        return "{ currentPlayer = " + currentPlayer +
-                ", whitePlayer=" + whitePlayer +
-                ", blackPlayer=" + blackPlayer +
-                '}';
-    }
-
     private void actionClickSquare(int clickedRow, int clickedColumn) {
         for (Move legalMove : legalMoves) {
             if (legalMove.initialRow == clickedRow && legalMove.initialColumn == clickedColumn) {
