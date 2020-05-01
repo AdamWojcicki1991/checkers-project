@@ -4,7 +4,7 @@ import com.checkers.UIX.CheckersBoard;
 import com.checkers.engine.board.Board;
 import com.checkers.engine.figures.Figure;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.playres.Player;
+import com.checkers.engine.players.Player;
 
 import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
 import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;

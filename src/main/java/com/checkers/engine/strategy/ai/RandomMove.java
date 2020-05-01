@@ -21,7 +21,7 @@ public class RandomMove implements MoveStrategy {
 
     @Override
     public Move execute(CheckersBoard board) {
-        List<Move> legalMoves = board.getCurrentPlayer().getLegalMoves();
+        List<Move> legalMoves = board.getLegalMoves();
         return legalMoves.get(RANDOM.nextInt(legalMoves.size()));
     }
 }

@@ -2,7 +2,7 @@ package com.checkers.engine.figures;
 
 import com.checkers.engine.board.BoardField;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.playres.Player.PlayerType;
+import com.checkers.engine.players.Player.PlayerType;
 
 import java.util.ArrayList;
 import java.util.Collections;

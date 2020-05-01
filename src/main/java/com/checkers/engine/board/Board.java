@@ -13,9 +13,9 @@ import java.util.List;
 import static com.checkers.engine.board.BoardField.createBoardField;
 import static com.checkers.engine.figures.Figure.FigureType;
 import static com.checkers.engine.figures.Figure.FigureType.*;
-import static com.checkers.engine.playres.Player.PlayerType;
-import static com.checkers.engine.playres.Player.PlayerType.BLACK;
-import static com.checkers.engine.playres.Player.PlayerType.WHITE;
+import static com.checkers.engine.players.Player.PlayerType;
+import static com.checkers.engine.players.Player.PlayerType.BLACK;
+import static com.checkers.engine.players.Player.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.*;
 
 public class Board {

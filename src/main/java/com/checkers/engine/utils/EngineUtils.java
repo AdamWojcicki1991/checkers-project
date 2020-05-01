@@ -2,11 +2,11 @@ package com.checkers.engine.utils;
 
 import com.checkers.engine.board.BoardField;
 import com.checkers.engine.figures.Figure.FigureType;
-import com.checkers.engine.playres.Player.PlayerType;
+import com.checkers.engine.players.Player.PlayerType;
 
 import static com.checkers.engine.figures.Figure.FigureType.*;
-import static com.checkers.engine.playres.Player.PlayerType.BLACK;
-import static com.checkers.engine.playres.Player.PlayerType.WHITE;
+import static com.checkers.engine.players.Player.PlayerType.BLACK;
+import static com.checkers.engine.players.Player.PlayerType.WHITE;
 
 public interface EngineUtils {
     int BOARD_FIELD_SIZE = 70;

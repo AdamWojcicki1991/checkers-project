@@ -1,4 +1,4 @@
-package com.checkers.engine.playres;
+package com.checkers.engine.players;
 
 import com.checkers.engine.board.Board;
 import com.checkers.engine.figures.Figure;
@@ -10,12 +10,12 @@ import java.util.List;
 
 public abstract class Player {
 
-    protected final Board board;
-    protected final List<Move> legalMoves;
+    protected Board board;
+    protected List<Move> legalMoves;
 
     Player(final Board board) {
         this.board = board;
-        this.legalMoves = board.calculateMovesOnBoard(getPlayerType());
+        this.legalMoves = board.calculateMovesOnBoard(this.getPlayerType());
     }
 
     public MoveTransition makeMove(final Move move) {
@@ -76,4 +76,10 @@ public abstract class Player {
     public abstract List<Figure> getActiveFigures();
 
     public abstract PlayerType getPlayerType();
+
+    public abstract Board setBoard(Board board);
+
+    public abstract boolean isComputerPlayer();
+
+    public abstract void setComputerPlayer(boolean computerPlayer);
 }
