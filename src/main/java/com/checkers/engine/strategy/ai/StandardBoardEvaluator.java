@@ -6,6 +6,8 @@ import com.checkers.engine.figures.Figure;
 import com.checkers.engine.move.Move;
 import com.checkers.engine.players.Player;
 
+import static com.checkers.engine.players.Player.PlayerType.BLACK;
+import static com.checkers.engine.players.Player.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
 import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;
 
@@ -74,9 +76,9 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
     private static int enemyTerritory(Player player) {
         int figureOnEnemyTerritoryScore = 0;
         for (final Figure figure : player.getActiveFigures()) {
-            if (player.getPlayerType().isWhite() && figure.getRow() <= 4) {
+            if (player.getPlayerType() == WHITE && figure.getRow() <= 4) {
                 figureOnEnemyTerritoryScore += ENEMY_TERRITORY_BONUS;
-            } else if (player.getPlayerType().isBlack() && figure.getRow() >= 5) {
+            } else if (player.getPlayerType() == BLACK && figure.getRow() >= 5) {
                 figureOnEnemyTerritoryScore += ENEMY_TERRITORY_BONUS;
             }
         }

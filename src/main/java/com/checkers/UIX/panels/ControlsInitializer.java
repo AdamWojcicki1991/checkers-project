@@ -29,6 +29,8 @@ public class ControlsInitializer {
         message.setPrefHeight(78);
         message.setBorder(new Border(new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, null, new BorderWidths(4))));
         message.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
+        message.setOnMouseEntered(mouseEvent -> message.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+        message.setOnMouseExited(mouseEvent -> message.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
         return message;
     }
 

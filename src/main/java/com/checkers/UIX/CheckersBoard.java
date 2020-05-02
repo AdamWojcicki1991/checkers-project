@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +35,7 @@ public class CheckersBoard extends Canvas {
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenFigurePanel takenFigurePanel;
     private final Label message;
-    private final Set<Move> attackChainMoves;
+    private final List<Move> attackChainMoves;
     private final Set<Board> boards;
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
@@ -49,7 +50,7 @@ public class CheckersBoard extends Canvas {
         this.message = message;
         this.takenFigurePanel = takenFigurePanel;
         this.gameHistoryPanel = gameHistoryPanel;
-        this.attackChainMoves = new HashSet<>();
+        this.attackChainMoves = new ArrayList<>();
         this.boards = new HashSet<>();
         this.board = new Board();
         this.whitePlayer = new WhitePlayer(board);
@@ -62,8 +63,12 @@ public class CheckersBoard extends Canvas {
         initGame();
         computeLegalMoves();
         drawBoard();
-        takenFigurePanel.drawTakenFigurePanel();
-        gameHistoryPanel.drawGameHistoryPanel();
+        takenFigurePanel.resetFiguresCounter();
+        takenFigurePanel.resetFiguresFromPanels();
+        gameHistoryPanel.resetNotationCounters();
+        gameHistoryPanel.resetNotationFromPanels();
+        takenFigurePanel.createTakenFigurePanel();
+        gameHistoryPanel.createGameHistoryPanel();
     }
 
     public void computerStartGame() {
@@ -179,16 +184,17 @@ public class CheckersBoard extends Canvas {
         for (Move legalMove : legalMoves) {
             if (legalMove.initialRow == selectedRow && legalMove.initialColumn == selectedColumn &&
                     legalMove.destinationRow == clickedRow && legalMove.destinationColumn == clickedColumn) {
-                actionMakeMove(legalMove);
+                humanMakeMove(legalMove);
                 return;
             }
         }
         printTextInMessageField("Click green square of figure you already want to move or click on next valid figure.");
     }
 
-    private void actionMakeMove(Move move) {
+    private void humanMakeMove(Move move) {
         if (move.isPawnMajorMove() || move.isQueenMajorMove()) {
             board.executeMove(move);
+            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), move);
             board.pawnPromotion(move, legalMoves);
             boards.add(new Board(board));
         } else if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
@@ -208,8 +214,16 @@ public class CheckersBoard extends Canvas {
                 drawBoard();
                 return;
             } else {
+                int count = 0;
                 for (Move attackMove : attackChainMoves) {
+                    if (count == 0) {
+                        gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+                    } else {
+                        gameHistoryPanel.addAttackChainNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+                    }
+                    takenFigurePanel.addTakenFigureToPanel(board.getBoardArray()[attackMove.getEnemyDestinationRow()][attackMove.getEnemyDestinationColumn()].getFigure());
                     board.killFigure(attackMove);
+                    count++;
                 }
                 attackChainMoves.clear();
             }
@@ -263,6 +277,7 @@ public class CheckersBoard extends Canvas {
         Move move = strategy.execute(this);
         if (move.isPawnMajorMove() || move.isQueenMajorMove()) {
             board.executeMove(move);
+            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), move);
             board.pawnPromotion(move, legalMoves);
             boards.add(new Board(board));
         } else if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
@@ -283,8 +298,16 @@ public class CheckersBoard extends Canvas {
                     move = strategy.execute(this);
                     drawBoard();
                 } else {
+                    int count = 0;
                     for (Move attackMove : attackChainMoves) {
+                        if (count == 0) {
+                            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+                        } else {
+                            gameHistoryPanel.addAttackChainNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+                        }
+                        takenFigurePanel.addTakenFigureToPanel(board.getBoardArray()[attackMove.getEnemyDestinationRow()][attackMove.getEnemyDestinationColumn()].getFigure());
                         board.killFigure(attackMove);
+                        count++;
                     }
                     attackChainMoves.clear();
                     if (currentPlayer.getPlayerType() == WHITE) {
@@ -307,7 +330,7 @@ public class CheckersBoard extends Canvas {
     }
 
     private void changeCurrentPlayer(PlayerType playerType, Board board) {
-        if (playerType.isWhite()) {
+        if (playerType == WHITE) {
             whitePlayer.setBoard(board);
             currentPlayer = whitePlayer;
         } else {

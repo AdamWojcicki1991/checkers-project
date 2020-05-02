@@ -37,40 +37,16 @@ public abstract class Player {
     public enum PlayerType {
         WHITE {
             @Override
-            public boolean isWhite() {
-                return true;
-            }
-
-            @Override
-            public boolean isBlack() {
-                return false;
-            }
-
-            @Override
             public String toString() {
                 return "White Player";
             }
         },
         BLACK {
             @Override
-            public boolean isWhite() {
-                return false;
-            }
-
-            @Override
-            public boolean isBlack() {
-                return true;
-            }
-
-            @Override
             public String toString() {
                 return "Black Player";
             }
         };
-
-        public abstract boolean isWhite();
-
-        public abstract boolean isBlack();
     }
 
     public abstract List<Figure> getActiveFigures();

@@ -5,6 +5,9 @@ import com.checkers.engine.board.Board;
 import com.checkers.engine.move.Move;
 import com.checkers.engine.move.MoveTransition;
 
+import static com.checkers.engine.players.Player.PlayerType.BLACK;
+import static com.checkers.engine.players.Player.PlayerType.WHITE;
+
 public class MiniMax implements MoveStrategy {
 
     private final BoardEvaluator boardEvaluator;
@@ -39,14 +42,14 @@ public class MiniMax implements MoveStrategy {
         for (final Move move : board.getCurrentPlayer().getLegalMoves()) {
             final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
             if (moveTransition.getMoveStatus().isDone()) {
-                currentValue = board.getCurrentPlayer().getPlayerType().isWhite() ?
+                currentValue = board.getCurrentPlayer().getPlayerType() == WHITE ?
                         min(board, moveTransition.getTransitionBoard(), depth - 1) :
                         max(board, moveTransition.getTransitionBoard(), depth - 1);
 
-                if (board.getCurrentPlayer().getPlayerType().isWhite() && currentValue >= highestSeenValue) {
+                if (board.getCurrentPlayer().getPlayerType() == WHITE && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                     bestMove = move;
-                } else if (board.getCurrentPlayer().getPlayerType().isBlack() && currentValue <= lowestSeenValue) {
+                } else if (board.getCurrentPlayer().getPlayerType() == BLACK && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                     bestMove = move;
                 }

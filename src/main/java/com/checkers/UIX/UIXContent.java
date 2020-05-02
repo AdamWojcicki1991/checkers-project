@@ -1,6 +1,7 @@
 package com.checkers.UIX;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public interface UIXContent {
     Image BACKGROUND_MAIN_VIEW = new Image("com/checkers/UIX/image/background.jpg");
@@ -9,6 +10,14 @@ public interface UIXContent {
     Image BQ = new Image("com/checkers/UIX/figures/BQ.png");
     Image WP = new Image("com/checkers/UIX/figures/WP.png");
     Image WQ = new Image("com/checkers/UIX/figures/WQ.png");
+    Image BP_RES = new Image("com/checkers/UIX/figures/BP.png", 50, 50, false, false);
+    Image BQ_RES = new Image("com/checkers/UIX/figures/BQ.png", 50, 50, false, false);
+    Image WP_RES = new Image("com/checkers/UIX/figures/WP.png", 50, 50, false, false);
+    Image WQ_RES = new Image("com/checkers/UIX/figures/WQ.png", 50, 50, false, false);
+    ImageView BP_RES_IW = new ImageView(BP_RES);
+    ImageView BQ_RES_IW = new ImageView(BQ_RES);
+    ImageView WP_RES_IW = new ImageView(WP_RES);
+    ImageView WQ_RES_IW = new ImageView(WQ_RES);
 
     static String printManual() {
         return "1. You only use a mouse to interact with Checkers Game.\n" +

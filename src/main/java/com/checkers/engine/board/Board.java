@@ -107,14 +107,6 @@ public class Board {
         return nextJumpsOnBoard;
     }
 
-    public BoardField getBoardField(int row, int column) {
-        return board[row][column];
-    }
-
-    public BoardField[][] getBoardArray() {
-        return board;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -143,6 +135,14 @@ public class Board {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public BoardField getBoardField(int row, int column) {
+        return board[row][column];
+    }
+
+    public BoardField[][] getBoardArray() {
+        return board;
     }
 
     private void moveFigure(Move move) {

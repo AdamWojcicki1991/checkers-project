@@ -19,7 +19,7 @@ import static com.checkers.UIX.panels.ControlsInitializer.*;
 public class CheckersApplication extends Application {
     private MenuBar menuBar;
     private Label messageWindow;
-    private CheckersBoard board;
+    private CheckersBoard checkersBoard;
     private TakenFigurePanel takenFigurePanel;
     private GameHistoryPanel gameHistoryPanel;
 
@@ -28,8 +28,8 @@ public class CheckersApplication extends Application {
         messageWindow = createMessageWindow();
         takenFigurePanel = new TakenFigurePanel();
         gameHistoryPanel = new GameHistoryPanel();
-        board = new CheckersBoard(messageWindow, takenFigurePanel, gameHistoryPanel);
-        menuBar = createMenuBar(board);
+        checkersBoard = new CheckersBoard(messageWindow, takenFigurePanel, gameHistoryPanel);
+        menuBar = createMenuBar(checkersBoard);
         Background background = initializeBackground(1600, 900, BACKGROUND_MAIN_VIEW);
         BorderPane root = initializeRoot(background);
         initializeScene(primaryStage, root);
@@ -41,29 +41,29 @@ public class CheckersApplication extends Application {
     }
 
     private void mouseEvents() {
-        board.setOnMousePressed(mouseEvent -> board.mousePressed(mouseEvent));
+        checkersBoard.setOnMousePressed(mouseEvent -> checkersBoard.mousePressed(mouseEvent));
     }
 
     private void initializeBorderPane() {
         BorderPane.setMargin(messageWindow, new Insets(0, 0, 25, 0));
-        BorderPane.setMargin(takenFigurePanel, new Insets(0, 0, 0, 50));
-        BorderPane.setMargin(gameHistoryPanel, new Insets(0, 50, 0, 0));
+        BorderPane.setMargin(takenFigurePanel.getTakenFigurePanel(), new Insets(0, 0, 0, 50));
+        BorderPane.setMargin(gameHistoryPanel.getGameHistoryPanel(), new Insets(0, 50, 0, 0));
         BorderPane.setAlignment(messageWindow, Pos.BOTTOM_CENTER);
         BorderPane.setAlignment(menuBar, Pos.TOP_CENTER);
-        BorderPane.setAlignment(board, Pos.CENTER);
-        BorderPane.setAlignment(takenFigurePanel, Pos.CENTER_LEFT);
-        BorderPane.setAlignment(gameHistoryPanel, Pos.CENTER_RIGHT);
+        BorderPane.setAlignment(checkersBoard, Pos.CENTER);
+        BorderPane.setAlignment(takenFigurePanel.getTakenFigurePanel(), Pos.CENTER_LEFT);
+        BorderPane.setAlignment(gameHistoryPanel.getGameHistoryPanel(), Pos.CENTER_RIGHT);
     }
 
     private BorderPane initializeRoot(Background background) {
         initializeBorderPane();
         BorderPane root = new BorderPane();
         root.setBackground(background);
-        root.setCenter(board);
+        root.setCenter(checkersBoard);
         root.setTop(menuBar);
         root.setBottom(messageWindow);
-        root.setLeft(takenFigurePanel);
-        root.setRight(gameHistoryPanel);
+        root.setLeft(takenFigurePanel.getTakenFigurePanel());
+        root.setRight(gameHistoryPanel.getGameHistoryPanel());
         root.setPrefWidth(1600);
         root.setPrefHeight(900);
         return root;
