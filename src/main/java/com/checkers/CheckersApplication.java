@@ -1,6 +1,6 @@
 package com.checkers;
 
-import com.checkers.UIX.CheckersBoard;
+import com.checkers.UIX.GameBoard;
 import com.checkers.UIX.panels.GameHistoryPanel;
 import com.checkers.UIX.panels.TakenFigurePanel;
 import javafx.application.Application;
@@ -19,7 +19,7 @@ import static com.checkers.UIX.panels.ControlsInitializer.*;
 public class CheckersApplication extends Application {
     private MenuBar menuBar;
     private Label messageWindow;
-    private CheckersBoard checkersBoard;
+    private GameBoard gameBoard;
     private TakenFigurePanel takenFigurePanel;
     private GameHistoryPanel gameHistoryPanel;
 
@@ -28,8 +28,8 @@ public class CheckersApplication extends Application {
         messageWindow = createMessageWindow();
         takenFigurePanel = new TakenFigurePanel();
         gameHistoryPanel = new GameHistoryPanel();
-        checkersBoard = new CheckersBoard(messageWindow, takenFigurePanel, gameHistoryPanel);
-        menuBar = createMenuBar(checkersBoard);
+        gameBoard = new GameBoard(messageWindow, takenFigurePanel, gameHistoryPanel);
+        menuBar = createMenuBar(gameBoard);
         Background background = initializeBackground(1600, 900, BACKGROUND_MAIN_VIEW);
         BorderPane root = initializeRoot(background);
         initializeScene(primaryStage, root);
@@ -41,7 +41,7 @@ public class CheckersApplication extends Application {
     }
 
     private void mouseEvents() {
-        checkersBoard.setOnMousePressed(mouseEvent -> checkersBoard.mousePressed(mouseEvent));
+        gameBoard.setOnMousePressed(mouseEvent -> gameBoard.mousePressed(mouseEvent));
     }
 
     private void initializeBorderPane() {
@@ -50,7 +50,7 @@ public class CheckersApplication extends Application {
         BorderPane.setMargin(gameHistoryPanel.getGameHistoryPanel(), new Insets(0, 50, 0, 0));
         BorderPane.setAlignment(messageWindow, Pos.BOTTOM_CENTER);
         BorderPane.setAlignment(menuBar, Pos.TOP_CENTER);
-        BorderPane.setAlignment(checkersBoard, Pos.CENTER);
+        BorderPane.setAlignment(gameBoard, Pos.CENTER);
         BorderPane.setAlignment(takenFigurePanel.getTakenFigurePanel(), Pos.CENTER_LEFT);
         BorderPane.setAlignment(gameHistoryPanel.getGameHistoryPanel(), Pos.CENTER_RIGHT);
     }
@@ -59,7 +59,7 @@ public class CheckersApplication extends Application {
         initializeBorderPane();
         BorderPane root = new BorderPane();
         root.setBackground(background);
-        root.setCenter(checkersBoard);
+        root.setCenter(gameBoard);
         root.setTop(menuBar);
         root.setBottom(messageWindow);
         root.setLeft(takenFigurePanel.getTakenFigurePanel());

@@ -46,6 +46,24 @@ public class Board {
         return board;
     }
 
+    public List<Figure> calculateFiguresOnBoard(PlayerType player) {
+        List<Figure> figuresOnBoard = new ArrayList<>();
+        for (int row = 0; row < ROW_COUNT; row++) {
+            for (int col = 0; col < COLUMN_COUNT; col++) {
+                if (player == WHITE) {
+                    if (board[row][col].isBoardFieldOccupied() && (board[row][col].getFigure().getFigureType() == WHITE_PAWN || board[row][col].getFigure().getFigureType() == WHITE_QUEEN)) {
+                        figuresOnBoard.add(board[row][col].getFigure());
+                    }
+                } else {
+                    if (board[row][col].isBoardFieldOccupied() && (board[row][col].getFigure().getFigureType() == BLACK_PAWN || board[row][col].getFigure().getFigureType() == BLACK_QUEEN)) {
+                        figuresOnBoard.add(board[row][col].getFigure());
+                    }
+                }
+            }
+        }
+        return figuresOnBoard;
+    }
+
     public void executeMove(Move move) {
         if (!board[move.destinationRow][move.destinationColumn].isBoardFieldOccupied()) {
             moveFigure(move);

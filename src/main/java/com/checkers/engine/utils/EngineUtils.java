@@ -1,8 +1,13 @@
 package com.checkers.engine.utils;
 
+import com.checkers.engine.board.Board;
 import com.checkers.engine.board.BoardField;
 import com.checkers.engine.figures.Figure.FigureType;
+import com.checkers.engine.move.Move;
+import com.checkers.engine.move.MoveTransition;
 import com.checkers.engine.players.Player.PlayerType;
+
+import java.util.List;
 
 import static com.checkers.engine.figures.Figure.FigureType.*;
 import static com.checkers.engine.players.Player.PlayerType.BLACK;
@@ -21,6 +26,15 @@ public interface EngineUtils {
             }
         }
         return target;
+    }
+
+    static MoveTransition makeSimulatedMove(final PlayerType playerType, final Board currentBoard, final Move move) {
+        List<Move> legalMoves = currentBoard.calculateMovesOnBoard(playerType);
+        if (legalMoves.isEmpty() || !legalMoves.contains(move)) {
+            return new MoveTransition(currentBoard, move, Move.MoveStatus.ILLEGAL_MOVE);
+        } else {
+            return new MoveTransition(currentBoard, move, Move.MoveStatus.DONE);
+        }
     }
 
     static boolean isDestinationInvalid(int destinationRow, int destinationColumn) {

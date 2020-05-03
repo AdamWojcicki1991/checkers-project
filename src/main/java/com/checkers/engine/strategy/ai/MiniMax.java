@@ -1,18 +1,22 @@
 package com.checkers.engine.strategy.ai;
 
-import com.checkers.UIX.CheckersBoard;
+import com.checkers.UIX.GameBoard;
 import com.checkers.engine.board.Board;
 import com.checkers.engine.move.Move;
 import com.checkers.engine.move.MoveTransition;
+import com.checkers.engine.players.Player.PlayerType;
+
+import java.util.List;
 
 import static com.checkers.engine.players.Player.PlayerType.BLACK;
 import static com.checkers.engine.players.Player.PlayerType.WHITE;
+import static com.checkers.engine.utils.EngineUtils.makeSimulatedMove;
 
 public class MiniMax implements MoveStrategy {
 
     private final BoardEvaluator boardEvaluator;
     private final int depth;
-    private final long boardsEvaluated;
+    private long boardsEvaluated;
 
     public MiniMax(final int depth) {
         this.boardEvaluator = new StandardBoardEvaluator();
@@ -26,8 +30,7 @@ public class MiniMax implements MoveStrategy {
     }
 
     @Override
-    public Move execute(CheckersBoard board) {
-
+    public Move execute(GameBoard gameBoard) {
         final long startTime = System.currentTimeMillis();
 
         Move bestMove = null;
@@ -35,21 +38,20 @@ public class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-        System.out.println(board.getCurrentPlayer().getPlayerType() + " THINKING with depth = " + depth);
+        System.out.println(gameBoard.getCurrentPlayer().getPlayerType() + " THINKING with depth = " + depth);
         int moveCounter = 1;
-        int numMoves = board.getCurrentPlayer().getLegalMoves().size();
+        int numMoves = gameBoard.getLegalMoves().size();
 
-        for (final Move move : board.getCurrentPlayer().getLegalMoves()) {
-            final MoveTransition moveTransition = board.getCurrentPlayer().makeMove(move);
+        for (final Move move : gameBoard.getLegalMoves()) {
+            final MoveTransition moveTransition = makeSimulatedMove(gameBoard.getCurrentPlayer().getPlayerType(), gameBoard.getBoard(), move);
             if (moveTransition.getMoveStatus().isDone()) {
-                currentValue = board.getCurrentPlayer().getPlayerType() == WHITE ?
-                        min(board, moveTransition.getTransitionBoard(), depth - 1) :
-                        max(board, moveTransition.getTransitionBoard(), depth - 1);
-
-                if (board.getCurrentPlayer().getPlayerType() == WHITE && currentValue >= highestSeenValue) {
+                currentValue = gameBoard.getCurrentPlayer().getPlayerType() == WHITE ?
+                        min(BLACK, moveTransition.getTransitionBoard(), depth - 1) :
+                        max(WHITE, moveTransition.getTransitionBoard(), depth - 1);
+                if (gameBoard.getCurrentPlayer().getPlayerType() == WHITE && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                     bestMove = move;
-                } else if (board.getCurrentPlayer().getPlayerType() == BLACK && currentValue <= lowestSeenValue) {
+                } else if (gameBoard.getCurrentPlayer().getPlayerType() == BLACK && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                     bestMove = move;
                 }
@@ -59,21 +61,23 @@ public class MiniMax implements MoveStrategy {
             moveCounter++;
         }
         long executionTime = System.currentTimeMillis() - startTime;
-        System.out.printf("%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", board.getCurrentPlayer().getPlayerType(),
+        System.out.printf("%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", gameBoard.getCurrentPlayer().getPlayerType(),
                 bestMove, boardsEvaluated, executionTime, (1000 * ((double) boardsEvaluated / executionTime)));
 
         return bestMove;
     }
 
-    public int min(final CheckersBoard checkersBoard, final Board board, final int depth) {
+    public int min(final PlayerType playerType, final Board board, final int depth) {
+        List<Move> legalMoves = board.calculateMovesOnBoard(playerType);
         if (depth == 0) {
-            return boardEvaluator.evaluate(checkersBoard, board, depth);
+            boardsEvaluated++;
+            return boardEvaluator.evaluate(board, depth);
         }
         int lowestSeenValue = Integer.MAX_VALUE;
-        for (final Move move : checkersBoard.getCurrentPlayer().getLegalMoves()) {
-            final MoveTransition moveTransition = checkersBoard.getCurrentPlayer().makeMove(move);
+        for (final Move move : legalMoves) {
+            final MoveTransition moveTransition = makeSimulatedMove(playerType, board, move);
             if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = max(checkersBoard, moveTransition.getTransitionBoard(), depth - 1);
+                final int currentValue = max(WHITE, moveTransition.getTransitionBoard(), depth - 1);
                 if (currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                 }
@@ -82,15 +86,17 @@ public class MiniMax implements MoveStrategy {
         return lowestSeenValue;
     }
 
-    public int max(final CheckersBoard checkersBoard, final Board board, final int depth) {
+    public int max(final PlayerType playerType, final Board board, final int depth) {
+        List<Move> legalMoves = board.calculateMovesOnBoard(playerType);
         if (depth == 0) {
-            return boardEvaluator.evaluate(checkersBoard, board, depth);
+            boardsEvaluated++;
+            return boardEvaluator.evaluate(board, depth);
         }
         int highestSeenValue = Integer.MIN_VALUE;
-        for (final Move move : checkersBoard.getCurrentPlayer().getLegalMoves()) {
-            final MoveTransition moveTransition = checkersBoard.getCurrentPlayer().makeMove(move);
+        for (final Move move : legalMoves) {
+            final MoveTransition moveTransition = makeSimulatedMove(playerType, board, move);
             if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = min(checkersBoard, moveTransition.getTransitionBoard(), depth - 1);
+                final int currentValue = min(BLACK, moveTransition.getTransitionBoard(), depth - 1);
                 if (currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                 }

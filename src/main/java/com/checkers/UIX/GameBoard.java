@@ -30,7 +30,7 @@ import static com.checkers.engine.players.Player.PlayerType.WHITE;
 import static com.checkers.engine.strategy.ai.DifficultyLevel.*;
 import static com.checkers.engine.utils.EngineUtils.*;
 
-public class CheckersBoard extends Canvas {
+public class GameBoard extends Canvas {
     private final Board board;
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenFigurePanel takenFigurePanel;
@@ -45,7 +45,7 @@ public class CheckersBoard extends Canvas {
     private boolean gameInProgress;
     private int selectedRow, selectedColumn;
 
-    public CheckersBoard(Label message, TakenFigurePanel takenFigurePanel, GameHistoryPanel gameHistoryPanel) {
+    public GameBoard(Label message, TakenFigurePanel takenFigurePanel, GameHistoryPanel gameHistoryPanel) {
         super(708, 708);
         this.message = message;
         this.takenFigurePanel = takenFigurePanel;

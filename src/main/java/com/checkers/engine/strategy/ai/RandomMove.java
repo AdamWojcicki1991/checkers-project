@@ -1,6 +1,6 @@
 package com.checkers.engine.strategy.ai;
 
-import com.checkers.UIX.CheckersBoard;
+import com.checkers.UIX.GameBoard;
 import com.checkers.engine.move.Move;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class RandomMove implements MoveStrategy {
     }
 
     @Override
-    public Move execute(CheckersBoard board) {
+    public Move execute(GameBoard board) {
         List<Move> legalMoves = board.getLegalMoves();
         return legalMoves.get(RANDOM.nextInt(legalMoves.size()));
     }

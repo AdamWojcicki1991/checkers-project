@@ -15,26 +15,9 @@ import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;
 
 public class BlackPlayer extends Player {
     private boolean computerPlayer = false;
-    private final List<Move> legalMoves;
 
     public BlackPlayer(final Board board) {
         super(board);
-        this.legalMoves = board.calculateMovesOnBoard(this.getPlayerType());
-    }
-
-    @Override
-    public List<Figure> getActiveFigures() {
-        List<Figure> activeFigures = new ArrayList<>();
-        for (int row = 0; row < ROW_COUNT; row++) {
-            for (int col = 0; col < COLUMN_COUNT; col++) {
-                if (board.getBoardArray()[row][col].isBoardFieldOccupied() &&
-                        (board.getBoardArray()[row][col].getFigure().getFigureType() == BLACK_PAWN ||
-                                board.getBoardArray()[row][col].getFigure().getFigureType() == BLACK_QUEEN)) {
-                    activeFigures.add(board.getBoardArray()[row][col].getFigure());
-                }
-            }
-        }
-        return activeFigures;
     }
 
     @Override
@@ -50,11 +33,6 @@ public class BlackPlayer extends Player {
     @Override
     public Board setBoard(Board board) {
         return this.board = board;
-    }
-
-    @Override
-    public List<Move> getLegalMoves() {
-        return legalMoves;
     }
 
     @Override

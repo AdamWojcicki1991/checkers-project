@@ -1,6 +1,6 @@
 package com.checkers.UIX.panels;
 
-import com.checkers.UIX.CheckersBoard;
+import com.checkers.UIX.GameBoard;
 import com.checkers.UIX.UIXContent;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -82,7 +82,7 @@ public class ControlsInitializer {
         popUpGameManual.showAndWait();
     }
 
-    private static void createPreferencesWindow(CheckersBoard board) {
+    private static void createPreferencesWindow(GameBoard board) {
         Stage popUpPreferences = new Stage();
         popUpPreferences.initModality(Modality.APPLICATION_MODAL);
         popUpPreferences.setTitle("PREFERENCES");
@@ -264,7 +264,7 @@ public class ControlsInitializer {
         popUpPreferences.showAndWait();
     }
 
-    public static MenuBar createMenuBar(CheckersBoard board) {
+    public static MenuBar createMenuBar(GameBoard board) {
         MenuBar menuBar = new MenuBar();
         Menu file = new Menu("File");
         Menu edit = new Menu("Edit");

@@ -1,11 +1,12 @@
 package com.checkers.engine.strategy.ai;
 
-import com.checkers.UIX.CheckersBoard;
 import com.checkers.engine.board.Board;
 import com.checkers.engine.figures.Figure;
 import com.checkers.engine.move.Move;
-import com.checkers.engine.players.Player;
+import com.checkers.engine.players.Player.PlayerType;
 
+import static com.checkers.engine.figures.Figure.FigureType.WHITE_PAWN;
+import static com.checkers.engine.figures.Figure.FigureType.WHITE_QUEEN;
 import static com.checkers.engine.players.Player.PlayerType.BLACK;
 import static com.checkers.engine.players.Player.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
@@ -31,25 +32,26 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
     };
 
     @Override
-    public int evaluate(CheckersBoard checkersBoard, Board board, int depth) {
-        return scorePlayer(board, checkersBoard.getWhitePlayer(), depth) - scorePlayer(board, checkersBoard.getBlackPlayer(), depth);
+    public int evaluate(final Board board, final int depth) {
+        return scorePlayer(WHITE, board, depth) - scorePlayer(BLACK, board, depth);
     }
 
-    private int scorePlayer(final Board board, final Player player, final int depth) {
-        return figureValue(player) + attacks(player) + mobility(player) + positionOnBoard(board) + enemyTerritory(player);
+    private int scorePlayer(final PlayerType player, final Board board, final int depth) {
+        return figureValue(player, board) + attacks(player, board) + mobility(player, board) +
+                positionOnBoard(player, board) + enemyTerritory(player, board);
     }
 
-    private static int figureValue(final Player player) {
+    private static int figureValue(final PlayerType player, final Board board) {
         int figureValueScore = 0;
-        for (final Figure figure : player.getActiveFigures()) {
+        for (final Figure figure : board.calculateFiguresOnBoard(player)) {
             figureValueScore += figure.getFigureType().getFigureValue();
         }
         return figureValueScore;
     }
 
-    private static int attacks(final Player player) {
+    private static int attacks(final PlayerType player, final Board board) {
         int attackScore = 0;
-        for (final Move move : player.getLegalMoves()) {
+        for (final Move move : board.calculateMovesOnBoard(player)) {
             if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
                 attackScore++;
             }
@@ -57,28 +59,33 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
         return attackScore * ATTACK_MULTIPLIER;
     }
 
-    private static int mobility(final Player player) {
-        return player.getLegalMoves().size() * MOBILITY_MULTIPLIER;
+    private static int mobility(final PlayerType player, final Board board) {
+        return board.calculateMovesOnBoard(player).size() * MOBILITY_MULTIPLIER;
     }
 
-    private static int positionOnBoard(Board board) {
+    private static int positionOnBoard(final PlayerType player, final Board board) {
         int fieldValueScore = 0;
         for (int row = 0; row < ROW_COUNT; row++) {
             for (int column = 0; column < COLUMN_COUNT; column++) {
                 if (board.getBoardField(row, column).isBoardFieldOccupied()) {
-                    fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                    if (player == WHITE && board.getBoardField(row, column).getFigure().getFigureType() == WHITE_PAWN ||
+                            board.getBoardField(row, column).getFigure().getFigureType() == WHITE_QUEEN) {
+                        fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                    } else {
+                        fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                    }
                 }
             }
         }
         return fieldValueScore;
     }
 
-    private static int enemyTerritory(Player player) {
+    private static int enemyTerritory(final PlayerType player, final Board board) {
         int figureOnEnemyTerritoryScore = 0;
-        for (final Figure figure : player.getActiveFigures()) {
-            if (player.getPlayerType() == WHITE && figure.getRow() <= 4) {
+        for (final Figure figure : board.calculateFiguresOnBoard(player)) {
+            if (player == WHITE && figure.getRow() <= 4) {
                 figureOnEnemyTerritoryScore += ENEMY_TERRITORY_BONUS;
-            } else if (player.getPlayerType() == BLACK && figure.getRow() >= 5) {
+            } else if (player == BLACK && figure.getRow() >= 5) {
                 figureOnEnemyTerritoryScore += ENEMY_TERRITORY_BONUS;
             }
         }
