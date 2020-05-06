@@ -31,20 +31,6 @@ public abstract class Move {
         return Objects.hash(initialRow, initialColumn, destinationRow, destinationColumn);
     }
 
-    public Move undo() {
-        if (isPawnMajorMove()) {
-            return new PawnMajorMove(destinationRow, destinationColumn, initialRow, initialColumn);
-        } else if (isQueenMajorMove()) {
-            return new QueenMajorMove(destinationRow, destinationColumn, initialRow, initialColumn);
-        } else if (isQueenMajorMove()) {
-            return new PawnAttackMove(destinationRow, destinationColumn, initialRow, initialColumn,
-                    getEnemyDestinationRow(), getEnemyDestinationColumn());
-        } else {
-            return new QueenAttackMove(destinationRow, destinationColumn, initialRow, initialColumn,
-                    getEnemyDestinationRow(), getEnemyDestinationColumn());
-        }
-    }
-
     public boolean isPawnMove() {
         return (initialRow - destinationRow == 1 || initialRow - destinationRow == -1);
     }

@@ -1,4 +1,4 @@
-package com.checkers.UIX;
+package com.checkers.controler;
 
 import com.checkers.UIX.panels.GameHistoryPanel;
 import com.checkers.UIX.panels.TakenFigurePanel;
@@ -44,6 +44,7 @@ public class GameBoard extends Canvas {
     private List<Move> legalMoves;
     private boolean gameInProgress;
     private int selectedRow, selectedColumn;
+    private int queenMoveCount;
 
     public GameBoard(Label message, TakenFigurePanel takenFigurePanel, GameHistoryPanel gameHistoryPanel) {
         super(708, 708);
@@ -89,6 +90,11 @@ public class GameBoard extends Canvas {
                     drawBoard();
                     return;
                 }
+                if (queenMoveCount == 30) {
+                    gameOver("We have a DRAW!");
+                    drawBoard();
+                    return;
+                }
                 computerMakeMove();
             }
         }
@@ -121,20 +127,8 @@ public class GameBoard extends Canvas {
         return legalMoves;
     }
 
-    public boolean isGameInProgress() {
-        return gameInProgress;
-    }
-
     public Player getCurrentPlayer() {
         return currentPlayer;
-    }
-
-    public WhitePlayer getWhitePlayer() {
-        return whitePlayer;
-    }
-
-    public BlackPlayer getBlackPlayer() {
-        return blackPlayer;
     }
 
     public void setDifficultyLevel(DifficultyLevel difficultyLevel) {
@@ -143,7 +137,7 @@ public class GameBoard extends Canvas {
         } else if (difficultyLevel == MEDIUM) {
             strategy = new MiniMax(2);
         } else if (difficultyLevel == HARD) {
-            strategy = new MiniMax(4);
+            strategy = new MiniMax(1);
         }
     }
 
@@ -177,7 +171,7 @@ public class GameBoard extends Canvas {
                 return;
             }
         }
-        if (selectedRow < 0) {
+        if (selectedRow < 0 && gameInProgress) {
             printTextInMessageField("Click the figure you want to move.");
             return;
         }
@@ -193,11 +187,9 @@ public class GameBoard extends Canvas {
 
     private void humanMakeMove(Move move) {
         if (move.isPawnMajorMove() || move.isQueenMajorMove()) {
-            board.executeMove(move);
-            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), move);
-            board.pawnPromotion(move, legalMoves);
-            boards.add(new Board(board));
+            makeMove(move);
         } else if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
+            queenMoveCount = 0;
             board.executeJump(move);
             boards.add(new Board(board));
             computeLegalJump(move);
@@ -214,18 +206,7 @@ public class GameBoard extends Canvas {
                 drawBoard();
                 return;
             } else {
-                int count = 0;
-                for (Move attackMove : attackChainMoves) {
-                    if (count == 0) {
-                        gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
-                    } else {
-                        gameHistoryPanel.addAttackChainNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
-                    }
-                    takenFigurePanel.addTakenFigureToPanel(board.getBoardArray()[attackMove.getEnemyDestinationRow()][attackMove.getEnemyDestinationColumn()].getFigure());
-                    board.killFigure(attackMove);
-                    count++;
-                }
-                attackChainMoves.clear();
+                executeAttackChain();
             }
         }
         if (currentPlayer.getPlayerType() == WHITE) {
@@ -233,6 +214,10 @@ public class GameBoard extends Canvas {
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("BLACK has no moves.  WHITE wins!");
+                drawBoard();
+                return;
+            } else if (queenMoveCount == 30) {
+                gameOver("We have a DRAW!");
                 drawBoard();
                 return;
             } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
@@ -245,6 +230,10 @@ public class GameBoard extends Canvas {
             computeLegalMoves();
             if (legalMoves.isEmpty()) {
                 gameOver("WHITE has no moves.  BLACK wins.");
+                drawBoard();
+                return;
+            } else if (queenMoveCount == 30) {
+                gameOver("We have a DRAW!");
                 drawBoard();
                 return;
             } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
@@ -276,12 +265,10 @@ public class GameBoard extends Canvas {
     private void computerMakeMove() {
         Move move = strategy.execute(this);
         if (move.isPawnMajorMove() || move.isQueenMajorMove()) {
-            board.executeMove(move);
-            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), move);
-            board.pawnPromotion(move, legalMoves);
-            boards.add(new Board(board));
+            makeMove(move);
         } else if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
             while (!legalMoves.isEmpty()) {
+                queenMoveCount = 0;
                 board.executeJump(move);
                 boards.add(new Board(board));
                 computeLegalJump(move);
@@ -293,29 +280,24 @@ public class GameBoard extends Canvas {
                     } else {
                         printTextInMessageField("BLACK:  You must continue jumping.");
                     }
-                    selectedRow = move.destinationRow;
-                    selectedColumn = move.destinationColumn;
                     move = strategy.execute(this);
                     drawBoard();
                 } else {
-                    int count = 0;
-                    for (Move attackMove : attackChainMoves) {
-                        if (count == 0) {
-                            gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
-                        } else {
-                            gameHistoryPanel.addAttackChainNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
-                        }
-                        takenFigurePanel.addTakenFigureToPanel(board.getBoardArray()[attackMove.getEnemyDestinationRow()][attackMove.getEnemyDestinationColumn()].getFigure());
-                        board.killFigure(attackMove);
-                        count++;
-                    }
-                    attackChainMoves.clear();
+                    executeAttackChain();
                     if (currentPlayer.getPlayerType() == WHITE) {
                         changeCurrentPlayer(BLACK, board);
                     } else {
                         changeCurrentPlayer(WHITE, board);
                     }
                     computeLegalMoves();
+                    if (legalMoves.isEmpty()) {
+                        if (currentPlayer.getPlayerType() == WHITE) {
+                            gameOver("WHITE has no moves.  BLACK wins!");
+                        } else {
+                            gameOver("BLACK has no moves.  WHITE wins!");
+                        }
+                        drawBoard();
+                    }
                     return;
                 }
             }
@@ -327,6 +309,33 @@ public class GameBoard extends Canvas {
         }
         computeLegalMoves();
         drawBoard();
+    }
+
+    private void makeMove(Move move) {
+        if (move.isQueenMajorMove()) {
+            queenMoveCount++;
+        } else {
+            queenMoveCount = 0;
+        }
+        board.executeMove(move);
+        gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), move);
+        board.pawnPromotion(move, legalMoves);
+        boards.add(new Board(board));
+    }
+
+    private void executeAttackChain() {
+        int count = 0;
+        for (Move attackMove : attackChainMoves) {
+            if (count == 0) {
+                gameHistoryPanel.addNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+            } else {
+                gameHistoryPanel.addAttackChainNotationToGameHistoryPanel(currentPlayer.getPlayerType(), board.getBoardArray(), attackMove);
+            }
+            takenFigurePanel.addTakenFigureToPanel(board.getBoardArray()[attackMove.getEnemyDestinationRow()][attackMove.getEnemyDestinationColumn()].getFigure());
+            board.killFigure(attackMove);
+            count++;
+        }
+        attackChainMoves.clear();
     }
 
     private void changeCurrentPlayer(PlayerType playerType, Board board) {

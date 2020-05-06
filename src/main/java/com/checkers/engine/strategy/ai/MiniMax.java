@@ -1,6 +1,6 @@
 package com.checkers.engine.strategy.ai;
 
-import com.checkers.UIX.GameBoard;
+import com.checkers.controler.GameBoard;
 import com.checkers.engine.board.Board;
 import com.checkers.engine.move.Move;
 import com.checkers.engine.move.MoveTransition;
@@ -10,7 +10,6 @@ import java.util.List;
 
 import static com.checkers.engine.players.Player.PlayerType.BLACK;
 import static com.checkers.engine.players.Player.PlayerType.WHITE;
-import static com.checkers.engine.utils.EngineUtils.makeSimulatedMove;
 
 public class MiniMax implements MoveStrategy {
 
@@ -38,21 +37,23 @@ public class MiniMax implements MoveStrategy {
         int lowestSeenValue = Integer.MAX_VALUE;
         int currentValue;
 
-        System.out.println(gameBoard.getCurrentPlayer().getPlayerType() + " THINKING with depth = " + depth);
-        int moveCounter = 1;
         int numMoves = gameBoard.getLegalMoves().size();
+        System.out.println("\n" + gameBoard.getCurrentPlayer().getPlayerType() + ", Legal moves: " + numMoves + ", THINKING with depth = " + depth + "\n");
 
+        int moveCounter = 1;
         for (final Move move : gameBoard.getLegalMoves()) {
             final MoveTransition moveTransition = makeSimulatedMove(gameBoard.getCurrentPlayer().getPlayerType(), gameBoard.getBoard(), move);
             if (moveTransition.getMoveStatus().isDone()) {
                 currentValue = gameBoard.getCurrentPlayer().getPlayerType() == WHITE ?
-                        min(BLACK, moveTransition.getTransitionBoard(), depth - 1) :
-                        max(WHITE, moveTransition.getTransitionBoard(), depth - 1);
+                        min(moveTransition.getTransitionBoard(), depth - 1) :
+                        max(moveTransition.getTransitionBoard(), depth - 1);
                 if (gameBoard.getCurrentPlayer().getPlayerType() == WHITE && currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
+                    System.out.println(" Score for " + moveTransition.getOpponentPlayer().toString() + " " + highestSeenValue + " for move " + move);
                     bestMove = move;
                 } else if (gameBoard.getCurrentPlayer().getPlayerType() == BLACK && currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
+                    System.out.println(" Score for " + moveTransition.getOpponentPlayer().toString() + " " + lowestSeenValue + " for move " + move);
                     bestMove = move;
                 }
             } else {
@@ -61,23 +62,32 @@ public class MiniMax implements MoveStrategy {
             moveCounter++;
         }
         long executionTime = System.currentTimeMillis() - startTime;
-        System.out.printf("%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", gameBoard.getCurrentPlayer().getPlayerType(),
+        System.out.printf("\n%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", gameBoard.getCurrentPlayer().getPlayerType(),
                 bestMove, boardsEvaluated, executionTime, (1000 * ((double) boardsEvaluated / executionTime)));
 
         return bestMove;
     }
 
-    public int min(final PlayerType playerType, final Board board, final int depth) {
-        List<Move> legalMoves = board.calculateMovesOnBoard(playerType);
-        if (depth == 0) {
+    private MoveTransition makeSimulatedMove(final PlayerType playerType, final Board currentBoard, final Move move) {
+        List<Move> legalMoves = currentBoard.calculateMovesOnBoard(playerType);
+        if (legalMoves.isEmpty() || !legalMoves.contains(move)) {
+            return new MoveTransition(playerType, currentBoard, move, Move.MoveStatus.ILLEGAL_MOVE);
+        } else {
+            return new MoveTransition(playerType, currentBoard, move, Move.MoveStatus.DONE);
+        }
+    }
+
+    private int min(final Board board, final int depth) {
+        List<Move> legalMoves = board.calculateMovesOnBoard(BLACK);
+        if (depth == 0 || legalMoves.isEmpty()) {
             boardsEvaluated++;
             return boardEvaluator.evaluate(board, depth);
         }
         int lowestSeenValue = Integer.MAX_VALUE;
         for (final Move move : legalMoves) {
-            final MoveTransition moveTransition = makeSimulatedMove(playerType, board, move);
+            final MoveTransition moveTransition = makeSimulatedMove(BLACK, board, move);
             if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = max(WHITE, moveTransition.getTransitionBoard(), depth - 1);
+                final int currentValue = max(moveTransition.getTransitionBoard(), depth - 1);
                 if (currentValue <= lowestSeenValue) {
                     lowestSeenValue = currentValue;
                 }
@@ -86,17 +96,17 @@ public class MiniMax implements MoveStrategy {
         return lowestSeenValue;
     }
 
-    public int max(final PlayerType playerType, final Board board, final int depth) {
-        List<Move> legalMoves = board.calculateMovesOnBoard(playerType);
-        if (depth == 0) {
+    private int max(final Board board, final int depth) {
+        List<Move> legalMoves = board.calculateMovesOnBoard(WHITE);
+        if (depth == 0 || legalMoves.isEmpty()) {
             boardsEvaluated++;
             return boardEvaluator.evaluate(board, depth);
         }
         int highestSeenValue = Integer.MIN_VALUE;
         for (final Move move : legalMoves) {
-            final MoveTransition moveTransition = makeSimulatedMove(playerType, board, move);
+            final MoveTransition moveTransition = makeSimulatedMove(WHITE, board, move);
             if (moveTransition.getMoveStatus().isDone()) {
-                final int currentValue = min(BLACK, moveTransition.getTransitionBoard(), depth - 1);
+                final int currentValue = min(moveTransition.getTransitionBoard(), depth - 1);
                 if (currentValue >= highestSeenValue) {
                     highestSeenValue = currentValue;
                 }

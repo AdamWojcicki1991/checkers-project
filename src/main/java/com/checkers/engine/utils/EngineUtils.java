@@ -28,15 +28,6 @@ public interface EngineUtils {
         return target;
     }
 
-    static MoveTransition makeSimulatedMove(final PlayerType playerType, final Board currentBoard, final Move move) {
-        List<Move> legalMoves = currentBoard.calculateMovesOnBoard(playerType);
-        if (legalMoves.isEmpty() || !legalMoves.contains(move)) {
-            return new MoveTransition(currentBoard, move, Move.MoveStatus.ILLEGAL_MOVE);
-        } else {
-            return new MoveTransition(currentBoard, move, Move.MoveStatus.DONE);
-        }
-    }
-
     static boolean isDestinationInvalid(int destinationRow, int destinationColumn) {
         return destinationRow < 0 || destinationRow >= ROW_COUNT || destinationColumn < 0 || destinationColumn >= COLUMN_COUNT;
     }

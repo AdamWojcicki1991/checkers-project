@@ -44,16 +44,12 @@ public abstract class Figure {
         return row;
     }
 
-    public int getColumn() {
-        return column;
-    }
-
     public enum FigureType {
 
         WHITE_PAWN("WP", 10),
-        WHITE_QUEEN("WQ", 900),
+        WHITE_QUEEN("WQ", 90),
         BLACK_PAWN("BP", 10),
-        BLACK_QUEEN("BQ", 900);
+        BLACK_QUEEN("BQ", 90);
 
         private final String figureName;
         private final int figureValue;

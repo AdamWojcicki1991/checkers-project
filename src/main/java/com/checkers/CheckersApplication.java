@@ -1,6 +1,6 @@
 package com.checkers;
 
-import com.checkers.UIX.GameBoard;
+import com.checkers.controler.GameBoard;
 import com.checkers.UIX.panels.GameHistoryPanel;
 import com.checkers.UIX.panels.TakenFigurePanel;
 import javafx.application.Application;
@@ -36,7 +36,7 @@ public class CheckersApplication extends Application {
         mouseEvents();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) {//
         launch(args);
     }
 

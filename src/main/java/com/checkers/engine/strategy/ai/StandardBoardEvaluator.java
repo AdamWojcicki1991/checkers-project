@@ -5,8 +5,9 @@ import com.checkers.engine.figures.Figure;
 import com.checkers.engine.move.Move;
 import com.checkers.engine.players.Player.PlayerType;
 
-import static com.checkers.engine.figures.Figure.FigureType.WHITE_PAWN;
-import static com.checkers.engine.figures.Figure.FigureType.WHITE_QUEEN;
+import java.util.List;
+
+import static com.checkers.engine.figures.Figure.FigureType.*;
 import static com.checkers.engine.players.Player.PlayerType.BLACK;
 import static com.checkers.engine.players.Player.PlayerType.WHITE;
 import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
@@ -14,9 +15,11 @@ import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;
 
 public final class StandardBoardEvaluator implements BoardEvaluator {
 
+    private static final int QUEEN_THREAT_BONUS = 400;
+    private static final int PAWN_THREAT_BONUS = 100;
+    private static final int PROMOTION_ROW_BONUS = 100;
     private static final int ENEMY_TERRITORY_BONUS = 20;
-    private final static int MOBILITY_MULTIPLIER = 2;
-    private final static int ATTACK_MULTIPLIER = 2;
+    private final static int MOBILITY_MULTIPLIER = 4;
 
     private final static int[][] BOARD_FIELD_VALUE = {
             {0, 5, 0, 5, 0, 5, 0, 5, 0, 5},
@@ -37,7 +40,7 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
     }
 
     private int scorePlayer(final PlayerType player, final Board board, final int depth) {
-        return figureValue(player, board) + attacks(player, board) + mobility(player, board) +
+        return figureValue(player, board) + attackThreats(player, board, depth) + mobility(player, board) +
                 positionOnBoard(player, board) + enemyTerritory(player, board);
     }
 
@@ -47,16 +50,6 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
             figureValueScore += figure.getFigureType().getFigureValue();
         }
         return figureValueScore;
-    }
-
-    private static int attacks(final PlayerType player, final Board board) {
-        int attackScore = 0;
-        for (final Move move : board.calculateMovesOnBoard(player)) {
-            if (move.isPawnAttackMove() || move.isQueenAttackMove()) {
-                attackScore++;
-            }
-        }
-        return attackScore * ATTACK_MULTIPLIER;
     }
 
     private static int mobility(final PlayerType player, final Board board) {
@@ -70,9 +63,17 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
                 if (board.getBoardField(row, column).isBoardFieldOccupied()) {
                     if (player == WHITE && board.getBoardField(row, column).getFigure().getFigureType() == WHITE_PAWN ||
                             board.getBoardField(row, column).getFigure().getFigureType() == WHITE_QUEEN) {
-                        fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                        if (row == 0 && board.getBoardField(row, column).getFigure().getFigureType() == WHITE_PAWN) {
+                            fieldValueScore += BOARD_FIELD_VALUE[row][column] + PROMOTION_ROW_BONUS;
+                        } else {
+                            fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                        }
                     } else {
-                        fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                        if (row == 9 && board.getBoardField(row, column).getFigure().getFigureType() == BLACK_PAWN) {
+                            fieldValueScore += BOARD_FIELD_VALUE[row][column] + PROMOTION_ROW_BONUS;
+                        } else {
+                            fieldValueScore += BOARD_FIELD_VALUE[row][column];
+                        }
                     }
                 }
             }
@@ -90,5 +91,23 @@ public final class StandardBoardEvaluator implements BoardEvaluator {
             }
         }
         return figureOnEnemyTerritoryScore;
+    }
+
+    private static int attackThreats(final PlayerType player, final Board board, final int depth) {
+        int attackPawnThreatScore = 0;
+        int attackQueenThreatScore = 0;
+        List<Move> legalMoves = board.calculateMovesOnBoard(player);
+        for (Move attackMove : legalMoves) {
+            if (attackMove.isPawnAttackMove()) {
+                attackPawnThreatScore++;
+            } else if (attackMove.isQueenAttackMove()) {
+                attackQueenThreatScore++;
+            }
+        }
+        return (attackPawnThreatScore * PAWN_THREAT_BONUS + attackQueenThreatScore * QUEEN_THREAT_BONUS) * depthBonus(depth);
+    }
+
+    private static int depthBonus(final int depth) {
+        return depth == 0 ? 1 : 100 * depth;
     }
 }

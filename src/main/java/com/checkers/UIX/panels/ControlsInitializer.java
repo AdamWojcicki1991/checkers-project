@@ -1,6 +1,6 @@
 package com.checkers.UIX.panels;
 
-import com.checkers.UIX.GameBoard;
+import com.checkers.controler.GameBoard;
 import com.checkers.UIX.UIXContent;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -292,6 +292,7 @@ public class ControlsInitializer {
             createPreferencesWindow(board);
             giveUp.setDisable(false);
             saveGame.setDisable(false);
+            preferences.setDisable(true);
             board.computerStartGame();
             board.computerVsComputer();
         });

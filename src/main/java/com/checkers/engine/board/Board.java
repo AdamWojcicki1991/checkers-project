@@ -89,9 +89,9 @@ public class Board {
     }
 
     public void pawnPromotion(Move move, List<Move> calculateJump) {
-        if (move.isPawnAttackMove() && calculateJump.isEmpty()) {
+        if (move.isPawnMove()) {
             executePromotion(move);
-        } else if (move.isPawnMove()) {
+        } else if (move.isPawnAttackMove() && calculateJump.isEmpty()) {
             executePromotion(move);
         }
     }
@@ -164,7 +164,7 @@ public class Board {
     }
 
     private void moveFigure(Move move) {
-        Figure.FigureType movedFigure = board[move.initialRow][move.initialColumn].getFigure().getFigureType();
+        FigureType movedFigure = board[move.initialRow][move.initialColumn].getFigure().getFigureType();
         if (movedFigure == WHITE_PAWN || movedFigure == BLACK_PAWN) {
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
@@ -199,6 +199,7 @@ public class Board {
             }
         } else if (board[row][col].getFigure().getFigureType() == playerQueen) {
             List<Move> legalMoves = board[row][col].getFigure().calculateLegalMoves(board, playerQueen, playerType);
+            if (legalMoves.isEmpty()) return;
             if (legalMoves.get(0).isQueenMajorMove()) {
                 legalMovesOnBoard.addAll(legalMoves);
             } else {

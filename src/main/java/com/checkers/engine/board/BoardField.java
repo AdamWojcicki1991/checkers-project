@@ -10,7 +10,7 @@ public abstract class BoardField implements Cloneable {
     protected final Figure figure;
     private boolean isJumped;
 
-    public BoardField(final int boardFieldNumber, Figure figure) {
+    public BoardField(final int boardFieldNumber, final Figure figure) {
         this.boardFieldNumber = boardFieldNumber;
         this.figure = figure;
         this.isJumped = false;
@@ -37,6 +37,11 @@ public abstract class BoardField implements Cloneable {
         return createBoardField(this.boardFieldNumber, this.figure);
     }
 
+    public static BoardField createBoardField(final int boardFieldNumber, final Figure figure) {
+        return figure != null ? new OccupiedBoardField(boardFieldNumber, figure) :
+                new EmptyBoardField(boardFieldNumber, null);
+    }
+
     public void setJumped(boolean jumped) {
         isJumped = true;
     }
@@ -51,10 +56,6 @@ public abstract class BoardField implements Cloneable {
 
     public abstract int getBoardFieldNumber();
 
-    public static BoardField createBoardField(final int boardFieldNumber, final Figure figure) {
-        return figure != null ? new OccupiedBoardField(boardFieldNumber, figure) :
-                new EmptyBoardField(boardFieldNumber, null);
-    }
 
     public final static class EmptyBoardField extends BoardField {
 
