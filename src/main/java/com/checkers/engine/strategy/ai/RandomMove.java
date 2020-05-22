@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Random;
 
 public class RandomMove implements MoveStrategy {
-
     private final Random RANDOM;
 
     public RandomMove() {

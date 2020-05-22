@@ -5,7 +5,6 @@ import com.checkers.engine.figures.Figure;
 import java.util.Objects;
 
 public abstract class BoardField implements Cloneable {
-
     protected final int boardFieldNumber;
     protected final Figure figure;
     private boolean isJumped;

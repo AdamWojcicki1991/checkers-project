@@ -52,9 +52,9 @@ public class GameHistoryPanel {
         whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         whiteTitleField.setText("WHITE MOVES");
         whiteTitleField.setOnMouseEntered(mouseEvent ->
-                whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                  whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         whiteTitleField.setOnMouseExited(mouseEvent ->
-                whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                 whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         blackTitleField.setFont(Font.font(16));
         blackTitleField.setTextFill(Color.SIENNA);
@@ -63,9 +63,9 @@ public class GameHistoryPanel {
         blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         blackTitleField.setText("BLACK MOVES");
         blackTitleField.setOnMouseEntered(mouseEvent ->
-                blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                  blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         blackTitleField.setOnMouseExited(mouseEvent ->
-                blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                 blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         whiteContent.setMaxSize(150, 708);
         whiteContent.setPrefSize(150, 708);

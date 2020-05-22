@@ -135,9 +135,9 @@ public class GameBoard extends Canvas {
         if (difficultyLevel == EASY) {
             strategy = new RandomMove();
         } else if (difficultyLevel == MEDIUM) {
-            strategy = new MiniMax(2);
-        } else if (difficultyLevel == HARD) {
             strategy = new MiniMax(1);
+        } else if (difficultyLevel == HARD) {
+            strategy = new MiniMax(2);
         }
     }
 
@@ -196,11 +196,7 @@ public class GameBoard extends Canvas {
             attackChainMoves.add(move);
             board.pawnPromotion(move, legalMoves);
             if (!legalMoves.isEmpty()) {
-                if (currentPlayer.getPlayerType() == WHITE) {
-                    printTextInMessageField("WHITE:  You must continue jumping.");
-                } else {
-                    printTextInMessageField("BLACK:  You must continue jumping.");
-                }
+                printTextInMessageField(currentPlayer.getPlayerType() + ":  You must continue jumping.");
                 selectedRow = move.destinationRow;
                 selectedColumn = move.destinationColumn;
                 drawBoard();
@@ -210,41 +206,14 @@ public class GameBoard extends Canvas {
             }
         }
         if (currentPlayer.getPlayerType() == WHITE) {
-            changeCurrentPlayer(BLACK, board);
-            computeLegalMoves();
-            if (legalMoves.isEmpty()) {
-                gameOver("BLACK has no moves.  WHITE wins!");
-                drawBoard();
-                return;
-            } else if (queenMoveCount == 30) {
-                gameOver("We have a DRAW!");
-                drawBoard();
-                return;
-            } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
-                printTextInMessageField("BLACK:  Make your move.  You must jump.");
-            } else {
-                printTextInMessageField("BLACK:  Click on valid figure and make your move.");
-            }
+            if (switchPlayerAndRecalculate(BLACK)) return;
         } else {
-            changeCurrentPlayer(WHITE, board);
-            computeLegalMoves();
-            if (legalMoves.isEmpty()) {
-                gameOver("WHITE has no moves.  BLACK wins.");
-                drawBoard();
-                return;
-            } else if (queenMoveCount == 30) {
-                gameOver("We have a DRAW!");
-                drawBoard();
-                return;
-            } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
-                printTextInMessageField("WHITE:  Make your move.  You must jump.");
-            } else {
-                printTextInMessageField("WHITE:  Click on valid figure and make your move.");
-            }
+            if (switchPlayerAndRecalculate(WHITE)) return;
         }
         if (currentPlayer.isComputerPlayer()) {
             computerMakeMove();
         }
+
         selectedRow = -1;
         if (!legalMoves.isEmpty()) {
             boolean sameStartSquare = true;
@@ -259,7 +228,28 @@ public class GameBoard extends Canvas {
                 selectedColumn = legalMoves.get(0).initialColumn;
             }
         }
+
         drawBoard();
+
+    }
+
+    private boolean switchPlayerAndRecalculate(PlayerType black) {
+        changeCurrentPlayer(black, board);
+        computeLegalMoves();
+        if (legalMoves.isEmpty()) {
+            gameOver(currentPlayer.getPlayerType() + "; has no moves.  other wins!");
+            drawBoard();
+            return true;
+        } else if (queenMoveCount == 30) {
+            gameOver("We have a DRAW!");
+            drawBoard();
+            return true;
+        } else if (legalMoves.get(0).isPawnAttackMove() || legalMoves.get(0).isQueenAttackMove()) {
+            printTextInMessageField(currentPlayer.getPlayerType() + ": Make your move.  You must jump.");
+        } else {
+            printTextInMessageField(currentPlayer.getPlayerType() + ":  Click on valid figure and make your move.");
+        }
+        return false;
     }
 
     private void computerMakeMove() {

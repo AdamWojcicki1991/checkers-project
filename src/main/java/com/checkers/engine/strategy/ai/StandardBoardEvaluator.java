@@ -14,7 +14,6 @@ import static com.checkers.engine.utils.EngineUtils.COLUMN_COUNT;
 import static com.checkers.engine.utils.EngineUtils.ROW_COUNT;
 
 public final class StandardBoardEvaluator implements BoardEvaluator {
-
     private static final int QUEEN_THREAT_BONUS = 400;
     private static final int PAWN_THREAT_BONUS = 100;
     private static final int PROMOTION_ROW_BONUS = 100;

@@ -1,13 +1,8 @@
 package com.checkers.engine.players;
 
 import com.checkers.engine.board.Board;
-import com.checkers.engine.figures.Figure;
-import com.checkers.engine.move.Move;
-
-import java.util.List;
 
 public abstract class Player {
-
     protected Board board;
 
     Player(final Board board) {

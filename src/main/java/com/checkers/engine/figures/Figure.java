@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Objects;
 
 public abstract class Figure {
-
     protected final FigureType figureType;
     protected final int row;
     protected final int column;
@@ -45,7 +44,6 @@ public abstract class Figure {
     }
 
     public enum FigureType {
-
         WHITE_PAWN("WP", 10),
         WHITE_QUEEN("WQ", 90),
         BLACK_PAWN("BP", 10),

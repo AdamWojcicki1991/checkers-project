@@ -298,9 +298,9 @@ public class ControlsInitializer {
         });
         giveUp.setOnAction(mouseEvent -> board.giveUp());
         exit.setOnAction(mouseEvent -> {
-                    Platform.exit();
-                    System.exit(0);
-                }
+                             Platform.exit();
+                             System.exit(0);
+                         }
         );
         preferences.setOnAction(mouseEvent -> createPreferencesWindow(board));
         gameManual.setOnAction(mouseEvent -> createPopUpWindow("GAME MANUAL", UIXContent.printManual()));

@@ -65,7 +65,6 @@ public abstract class Move {
     }
 
     public static class QueenAttackMove extends Move {
-
         private final int enemyDestinationRow;
         private final int enemyDestinationColumn;
 
@@ -119,7 +118,6 @@ public abstract class Move {
     }
 
     public static class PawnAttackMove extends Move {
-
         private final int enemyDestinationRow;
         private final int enemyDestinationColumn;
 

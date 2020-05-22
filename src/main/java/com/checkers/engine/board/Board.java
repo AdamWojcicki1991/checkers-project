@@ -106,7 +106,7 @@ public class Board {
             for (int col = 0; col < COLUMN_COUNT; col++) {
                 if (board[row][col].isBoardFieldOccupied()) {
                     calculateMoves(legalMovesOnBoard, legalAttacksOnBoard,
-                            playerPawn, playerQueen, playerType, row, col);
+                                   playerPawn, playerQueen, playerType, row, col);
                 }
             }
         }
@@ -168,11 +168,11 @@ public class Board {
         if (movedFigure == WHITE_PAWN || movedFigure == BLACK_PAWN) {
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
-                            new Pawn(movedFigure, move.destinationRow, move.destinationColumn));
+                                     new Pawn(movedFigure, move.destinationRow, move.destinationColumn));
         } else {
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
-                            new Queen(movedFigure, move.destinationRow, move.destinationColumn));
+                                     new Queen(movedFigure, move.destinationRow, move.destinationColumn));
         }
         board[move.initialRow][move.initialColumn] = createBoardField(board[move.initialRow][move.initialColumn].getBoardFieldNumber(), null);
     }
@@ -181,11 +181,11 @@ public class Board {
         if (move.destinationRow == 0 && board[move.destinationRow][move.destinationColumn].getFigure().getFigureType() == WHITE_PAWN)
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
-                            new Queen(WHITE_QUEEN, move.destinationRow, move.destinationColumn));
+                                     new Queen(WHITE_QUEEN, move.destinationRow, move.destinationColumn));
         if (move.destinationRow == 9 && board[move.destinationRow][move.destinationColumn].getFigure().getFigureType() == BLACK_PAWN)
             board[move.destinationRow][move.destinationColumn] =
                     createBoardField(board[move.destinationRow][move.destinationColumn].getBoardFieldNumber(),
-                            new Queen(BLACK_QUEEN, move.destinationRow, move.destinationColumn));
+                                     new Queen(BLACK_QUEEN, move.destinationRow, move.destinationColumn));
     }
 
     private void calculateMoves(List<Move> legalMovesOnBoard, List<Move> legalAttacksOnBoard, FigureType playerPawn, FigureType playerQueen, PlayerType playerType, int row, int col) {

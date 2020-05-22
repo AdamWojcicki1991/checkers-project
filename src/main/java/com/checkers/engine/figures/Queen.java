@@ -70,12 +70,12 @@ public class Queen extends Figure {
                     calculateRow = calculateRow + moveRow;
                     calculateColumn = calculateColumn + moveColumn;
                     nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
-                            calculateRow, calculateColumn,
-                            enemyDestinationRow, enemyDestinationCol));
+                                                          calculateRow, calculateColumn,
+                                                          enemyDestinationRow, enemyDestinationCol));
                     while (canMoveBehindFigure(board, calculateRow + moveRow, calculateColumn + moveColumn)) {
                         nextJumpMoves.add(new QueenAttackMove(initialRow, initialColumn,
-                                calculateRow + moveRow, calculateColumn + moveColumn,
-                                enemyDestinationRow, enemyDestinationCol));
+                                                              calculateRow + moveRow, calculateColumn + moveColumn,
+                                                              enemyDestinationRow, enemyDestinationCol));
                         calculateRow = calculateRow + moveRow;
                         calculateColumn = calculateColumn + moveColumn;
                     }

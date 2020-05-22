@@ -1,13 +1,8 @@
 package com.checkers.engine.utils;
 
-import com.checkers.engine.board.Board;
 import com.checkers.engine.board.BoardField;
 import com.checkers.engine.figures.Figure.FigureType;
-import com.checkers.engine.move.Move;
-import com.checkers.engine.move.MoveTransition;
 import com.checkers.engine.players.Player.PlayerType;
-
-import java.util.List;
 
 import static com.checkers.engine.figures.Figure.FigureType.*;
 import static com.checkers.engine.players.Player.PlayerType.BLACK;

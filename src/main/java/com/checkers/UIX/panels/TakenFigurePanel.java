@@ -48,9 +48,9 @@ public class TakenFigurePanel {
         whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         whiteTitleField.setText("WHITE PLAYER TAKEN FIGURES");
         whiteTitleField.setOnMouseEntered(mouseEvent ->
-                whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                  whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         whiteTitleField.setOnMouseExited(mouseEvent ->
-                whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                 whiteTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         blackTitleField.setFont(Font.font(16));
         blackTitleField.setTextFill(Color.SIENNA);
@@ -59,9 +59,9 @@ public class TakenFigurePanel {
         blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         blackTitleField.setText("BLACK PLAYER TAKEN FIGURES");
         blackTitleField.setOnMouseEntered(mouseEvent ->
-                blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                  blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         blackTitleField.setOnMouseExited(mouseEvent ->
-                blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                 blackTitleField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         whiteFiguresCountField.setFont(Font.font(16));
         whiteFiguresCountField.setTextFill(Color.SIENNA);
@@ -70,9 +70,9 @@ public class TakenFigurePanel {
         whiteFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         whiteFiguresCountField.setText("COUNT: ");
         whiteFiguresCountField.setOnMouseEntered(mouseEvent ->
-                whiteFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                         whiteFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         whiteFiguresCountField.setOnMouseExited(mouseEvent ->
-                whiteFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                        whiteFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         blackFiguresCountField.setFont(Font.font(16));
         blackFiguresCountField.setTextFill(Color.SIENNA);
@@ -81,9 +81,9 @@ public class TakenFigurePanel {
         blackFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK, CornerRadii.EMPTY, Insets.EMPTY)));
         blackFiguresCountField.setText("COUNT: ");
         blackFiguresCountField.setOnMouseEntered(mouseEvent ->
-                blackFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                         blackFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.darker(), CornerRadii.EMPTY, Insets.EMPTY))));
         blackFiguresCountField.setOnMouseExited(mouseEvent ->
-                blackFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
+                                                        blackFiguresCountField.setBackground(new Background(new BackgroundFill(Color.CORNSILK.brighter(), CornerRadii.EMPTY, Insets.EMPTY))));
 
         whiteTakenFigurePanel.setBorder(new Border(new BorderStroke(Color.GRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(3))));
         whiteTakenFigurePanel.setMaxSize(300, 250);

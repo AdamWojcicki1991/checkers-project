@@ -12,7 +12,6 @@ import static com.checkers.engine.players.Player.PlayerType.BLACK;
 import static com.checkers.engine.players.Player.PlayerType.WHITE;
 
 public class MiniMax implements MoveStrategy {
-
     private final BoardEvaluator boardEvaluator;
     private final int depth;
     private long boardsEvaluated;
@@ -63,7 +62,7 @@ public class MiniMax implements MoveStrategy {
         }
         long executionTime = System.currentTimeMillis() - startTime;
         System.out.printf("\n%s SELECTS %s [#boards = %d time taken = %d ms, rate = %.1f\n", gameBoard.getCurrentPlayer().getPlayerType(),
-                bestMove, boardsEvaluated, executionTime, (1000 * ((double) boardsEvaluated / executionTime)));
+                          bestMove, boardsEvaluated, executionTime, (1000 * ((double) boardsEvaluated / executionTime)));
 
         return bestMove;
     }
