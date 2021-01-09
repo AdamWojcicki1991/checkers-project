@@ -1,8 +1,8 @@
 package com.checkers;
 
-import com.checkers.controler.GameBoard;
 import com.checkers.UIX.panels.GameHistoryPanel;
 import com.checkers.UIX.panels.TakenFigurePanel;
+import com.checkers.controler.GameBoard;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,6 +23,10 @@ public class CheckersApplication extends Application {
     private TakenFigurePanel takenFigurePanel;
     private GameHistoryPanel gameHistoryPanel;
 
+    public static void main(String[] args) {
+        launch();
+    }
+
     @Override
     public void start(Stage primaryStage) {
         messageWindow = createMessageWindow();
@@ -34,10 +38,6 @@ public class CheckersApplication extends Application {
         BorderPane root = initializeRoot(background);
         initializeScene(primaryStage, root);
         mouseEvents();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 
     private void mouseEvents() {

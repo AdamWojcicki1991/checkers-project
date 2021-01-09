@@ -7,6 +7,17 @@ plugins {
 group = 'com.checkers'
 version = '1.0-SNAPSHOT'
 sourceCompatibility = '11'
+mainClassName = 'com.checkers.CheckersApplication'
+
+jar {
+    archiveName("Checkers.jar")
+    manifest {
+        attributes(
+                'Main-Class': 'com.checkers.Launcher'
+        )
+    }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
 
 repositories {
     mavenCentral()
@@ -21,5 +32,3 @@ javafx {
     version = "11.0.2"
     modules = ['javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.swing', 'javafx.base']
 }
-
-mainClassName = 'com.checkers.CheckersApplication'
